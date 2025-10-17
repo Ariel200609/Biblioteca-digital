@@ -46,3 +46,11 @@ El sistema permitirá:
 ---
 
 ✨ _Proyecto desarrollado como práctica de arquitectura de software y patrones de diseño aplicados en TypeScript/Node.js._
+
+## Miembros del proyecto 
+
+---
+- Gianfranco Robles
+- Lucas Peratta
+- Ariel Montoya 
+- Dietrich Camilo
