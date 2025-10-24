@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { UserService } from '../services/user.service';
+import { UserService } from '../services/user.services';
 
 export class UserController {
     private userService: UserService;
@@ -19,7 +19,11 @@ export class UserController {
 
     getById = async (req: Request, res: Response) => {
         try {
-            const user = await this.userService.getById(req.params.id);
+            const id = req.params.id;
+            if (!id) {
+                return res.status(400).json({ error: 'User ID is required' });
+            }
+            const user = await this.userService.getById(id);
             if (!user) return res.status(404).json({ error: 'User not found' });
             res.json(user);
         } catch (error) {
@@ -36,9 +40,13 @@ export class UserController {
         }
     };
 
-    update = async (req: Request, res: Response) => {
+   update = async (req: Request, res: Response) => {
         try {
-            const user = await this.userService.update(req.params.id, req.body);
+            const id = req.params.id;
+            if (!id) {
+                return res.status(400).json({ error: 'User ID is required' });
+            }
+            const user = await this.userService.update(id, req.body);
             if (!user) return res.status(404).json({ error: 'User not found' });
             res.json(user);
         } catch (error) {
@@ -46,9 +54,13 @@ export class UserController {
         }
     };
 
-    delete = async (req: Request, res: Response) => {
+ delete = async (req: Request, res: Response) => {
         try {
-            const result = await this.userService.delete(req.params.id);
+            const id = req.params.id;
+            if (!id) {
+                return res.status(400).json({ error: 'User ID is required' });
+            }
+            const result = await this.userService.delete(id);
             if (!result) return res.status(404).json({ error: 'User not found' });
             res.status(204).send();
         } catch (error) {

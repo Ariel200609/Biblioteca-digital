@@ -1,4 +1,4 @@
-import { Book } from '../models/Book';
+import { Book } from '../models/book.models';
 
 export class BookService {
     private books: Book[] = [];
@@ -23,12 +23,23 @@ export class BookService {
         return book;
     }
 
-    async update(id: string, bookData: Partial<Book>): Promise<Book | null> {
+     async update(id: string, bookData: Partial<Book>): Promise<Book | null> {
         const index = this.books.findIndex(book => book.id === id);
         if (index === -1) return null;
         
-        this.books[index] = { ...this.books[index], ...bookData };
-        return this.books[index];
+        const currentBook = this.books[index];
+        if (!currentBook) return null;
+        
+        const updatedBook = new Book(
+            currentBook.id,
+            bookData.title || currentBook.title,
+            bookData.author || currentBook.author,
+            bookData.isbn || currentBook.isbn,
+            bookData.category || currentBook.category
+        );
+        
+        this.books[index] = updatedBook;
+        return updatedBook;
     }
 
     async delete(id: string): Promise<boolean> {

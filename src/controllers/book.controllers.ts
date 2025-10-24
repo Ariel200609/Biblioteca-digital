@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { BookService } from '../services/book.service';
+import { BookService } from '../services/book.services';
 
 export class BookController {
     private bookService: BookService;
@@ -19,14 +19,17 @@ export class BookController {
 
     getById = async (req: Request, res: Response) => {
         try {
-            const book = await this.bookService.getById(req.params.id);
-            if (!book) return res.status(404).json({ error: 'Book not found' });
-            res.json(book);
+            const id = req.params.id;
+            if (!id) {
+                return res.status(400).json({ error: 'User ID is required' });
+            }
+            const user = await this.bookService.getById(id);
+            if (!user) return res.status(404).json({ error: 'User not found' });
+            res.json(user);
         } catch (error) {
-            res.status(500).json({ error: 'Error getting book' });
+            res.status(500).json({ error: 'Error getting user' });
         }
     };
-
     create = async (req: Request, res: Response) => {
         try {
             const book = await this.bookService.create(req.body);
@@ -36,23 +39,32 @@ export class BookController {
         }
     };
 
-    update = async (req: Request, res: Response) => {
+      update = async (req: Request, res: Response) => {
         try {
-            const book = await this.bookService.update(req.params.id, req.body);
-            if (!book) return res.status(404).json({ error: 'Book not found' });
-            res.json(book);
+            const id = req.params.id;
+            if (!id) {
+                return res.status(400).json({ error: 'User ID is required' });
+            }
+            const user = await this.bookService.update(id, req.body);
+            if (!user) return res.status(404).json({ error: 'User not found' });
+            res.json(user);
         } catch (error) {
-            res.status(400).json({ error: 'Error updating book' });
+            res.status(400).json({ error: 'Error updating user' });
         }
     };
 
+
     delete = async (req: Request, res: Response) => {
         try {
-            const result = await this.bookService.delete(req.params.id);
-            if (!result) return res.status(404).json({ error: 'Book not found' });
+            const id = req.params.id;
+            if (!id) {
+                return res.status(400).json({ error: 'User ID is required' });
+            }
+            const result = await this.bookService.delete(id);
+            if (!result) return res.status(404).json({ error: 'User not found' });
             res.status(204).send();
         } catch (error) {
-            res.status(500).json({ error: 'Error deleting book' });
+            res.status(500).json({ error: 'Error deleting user' });
         }
     };
 }

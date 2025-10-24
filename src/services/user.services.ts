@@ -1,4 +1,4 @@
-import { User } from '../models/User';
+import { User } from '../models/user.models';
 
 export class UserService {
     private users: User[] = [];
@@ -26,8 +26,18 @@ export class UserService {
         const index = this.users.findIndex(user => user.id === id);
         if (index === -1) return null;
         
-        this.users[index] = { ...this.users[index], ...userData };
-        return this.users[index];
+        const currentUser = this.users[index];
+        if (!currentUser) return null;
+        
+        const updatedUser = new User(
+            currentUser.id,
+            userData.name || currentUser.name,
+            userData.email || currentUser.email,
+            userData.role || currentUser.role
+        );
+        
+        this.users[index] = updatedUser;
+        return updatedUser;
     }
 
     async delete(id: string): Promise<boolean> {
