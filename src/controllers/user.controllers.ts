@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { UserService } from '../services/user.service';
+import { UserService } from '../services/user.services';
 
 export class UserController {
     private userService: UserService;
@@ -18,7 +18,10 @@ export class UserController {
     };
 
     getById = async (req: Request, res: Response) => {
-        try {
+         try {
+            if (!req.params.id) {
+                return res.status(400).json({ error: 'User ID is required' });
+            }
             const user = await this.userService.getById(req.params.id);
             if (!user) return res.status(404).json({ error: 'User not found' });
             res.json(user);
@@ -29,6 +32,9 @@ export class UserController {
 
     create = async (req: Request, res: Response) => {
         try {
+            if (!req.params.id) {
+                return res.status(400).json({ error: 'User ID is required' });
+            }
             const user = await this.userService.create(req.body);
             res.status(201).json(user);
         } catch (error) {
@@ -37,7 +43,10 @@ export class UserController {
     };
 
     update = async (req: Request, res: Response) => {
-        try {
+         try {
+            if (!req.params.id) {
+                return res.status(400).json({ error: 'User ID is required' });
+            }
             const user = await this.userService.update(req.params.id, req.body);
             if (!user) return res.status(404).json({ error: 'User not found' });
             res.json(user);
@@ -48,6 +57,9 @@ export class UserController {
 
     delete = async (req: Request, res: Response) => {
         try {
+            if (!req.params.id) {
+                return res.status(400).json({ error: 'User ID is required' });
+            }
             const result = await this.userService.delete(req.params.id);
             if (!result) return res.status(404).json({ error: 'User not found' });
             res.status(204).send();
