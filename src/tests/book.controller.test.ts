@@ -18,21 +18,22 @@ describe('BookController', () => {
     let bookController: BookController;
     let mockRequest: Partial<Request>;
     let mockResponse: Partial<Response>;
-    let responseObject: any;
 
     beforeEach(() => {
+        // Clear all mocks before each test
+        vi.clearAllMocks();
+        
         bookController = new BookController();
-        responseObject = {};
 
         // Reset response mock
         mockResponse = {
-            json: vi.fn().mockImplementation(result => {
-                responseObject = result;
-                return mockResponse;
-            }),
+            json: vi.fn().mockReturnThis(),
             status: vi.fn().mockReturnThis(),
-            send: vi.fn()
+            send: vi.fn().mockReturnThis()
         };
+
+        // Reset request mock
+        mockRequest = {};
     });
 
     describe('getAll', () => {
@@ -43,7 +44,8 @@ describe('BookController', () => {
             ];
 
             // Mock service response
-            (BookService as any).mock.results[0].value.getAll.mockResolvedValue(mockBooks);
+            const mockService = (BookService as any).mock.results[0].value;
+            mockService.getAll.mockResolvedValue(mockBooks);
 
             await bookController.getAll(mockRequest as Request, mockResponse as Response);
 
@@ -52,7 +54,8 @@ describe('BookController', () => {
 
         it('should handle errors', async () => {
             // Mock service error
-            (BookService as any).mock.results[0].value.getAll.mockRejectedValue(new Error('Database error'));
+            const mockService = (BookService as any).mock.results[0].value;
+            mockService.getAll.mockRejectedValue(new Error('Database error'));
 
             await bookController.getAll(mockRequest as Request, mockResponse as Response);
 
@@ -66,7 +69,9 @@ describe('BookController', () => {
             const mockBook = { id: '1', title: 'Book 1', author: 'Author 1' };
             mockRequest = { params: { id: '1' } };
 
-            (BookService as any).mock.results[0].value.getById.mockResolvedValue(mockBook);
+            // Mock service response
+            const mockService = (BookService as any).mock.results[0].value;
+            mockService.getById.mockResolvedValue(mockBook);
 
             await bookController.getById(mockRequest as Request, mockResponse as Response);
 
@@ -76,7 +81,9 @@ describe('BookController', () => {
         it('should return 404 if book not found', async () => {
             mockRequest = { params: { id: '999' } };
 
-            (BookService as any).mock.results[0].value.getById.mockResolvedValue(null);
+            // Mock service response
+            const mockService = (BookService as any).mock.results[0].value;
+            mockService.getById.mockResolvedValue(null);
 
             await bookController.getById(mockRequest as Request, mockResponse as Response);
 

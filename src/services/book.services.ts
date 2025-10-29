@@ -35,7 +35,8 @@ export class BookService {
             bookData.title || currentBook.title,
             bookData.author || currentBook.author,
             bookData.isbn || currentBook.isbn,
-            bookData.category || currentBook.category
+            bookData.category || currentBook.category,
+            bookData.available !== undefined ? bookData.available : currentBook.available
         );
         
         this.books[index] = updatedBook;

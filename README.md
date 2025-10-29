@@ -154,6 +154,77 @@ PUT /api/users/:id
 DELETE /api/users/:id
 ```
 
+### Endpoints de Préstamos
+
+#### Obtener todos los préstamos
+```http
+GET /api/loans
+```
+Retorna la lista de todos los préstamos.
+
+#### Obtener préstamo por ID
+```http
+GET /api/loans/:id
+```
+Retorna un préstamo específico con detalles del libro y usuario.
+
+#### Obtener préstamos activos de un usuario
+```http
+GET /api/loans/user/:userId
+```
+Retorna todos los préstamos activos de un usuario específico.
+
+#### Crear nuevo préstamo
+```http
+POST /api/loans
+```
+```json
+{
+  "userId": "123",
+  "bookId": "456",
+  "dueDate": "2025-11-12T00:00:00.000Z"
+}
+```
+Crea un nuevo préstamo. La fecha de vencimiento (dueDate) es opcional, por defecto será 14 días desde la creación.
+
+#### Devolver un libro
+```http
+POST /api/loans/:id/return
+```
+Marca un préstamo como devuelto y hace el libro disponible nuevamente.
+
+#### Renovar un préstamo
+```http
+POST /api/loans/:id/renew
+```
+Extiende la fecha de vencimiento del préstamo. Limitado a 2 renovaciones por préstamo.
+
+### Respuestas de error comunes
+
+```json
+{
+  "error": "Book is not available for loan"
+}
+```
+
+```json
+{
+  "error": "User has reached maximum number of active loans"
+}
+```
+
+```json
+{
+  "error": "Maximum number of renewals reached"
+}
+```
+
+```json
+{
+  "error": "Overdue loans cannot be renewed"
+}
+```
+
 ## Miembros del proyecto 
 
 ---

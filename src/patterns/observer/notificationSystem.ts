@@ -1,8 +1,18 @@
+export type NotificationType = 
+    | 'LOAN_CREATED' 
+    | 'LOAN_DUE' 
+    | 'LOAN_OVERDUE'
+    | 'LOAN_RETURNED'
+    | 'LOAN_RENEWED'
+    | 'BOOK_AVAILABLE' 
+    | 'SYSTEM';
+
 export interface INotification {
     userId: string;
     message: string;
-    type: 'LOAN_DUE' | 'BOOK_AVAILABLE' | 'SYSTEM';
+    type: NotificationType;
     createdAt: Date;
+    metadata?: Record<string, unknown>;
 }
 
 export interface INotificationObserver {
