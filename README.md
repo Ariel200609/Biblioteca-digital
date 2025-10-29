@@ -73,6 +73,87 @@ npm run dev
 - `npm start`: Inicia el servidor en modo producción
 - `npm test`: Ejecuta las pruebas con interfaz visual
 
+## 📚 API Reference
+
+### Endpoints de Libros
+
+#### Obtener todos los libros
+```http
+GET /api/books
+```
+
+#### Buscar libros
+```http
+GET /api/books/search?type=title&query=harry
+```
+Tipos de búsqueda disponibles:
+- `title`: Buscar por título
+- `author`: Buscar por autor
+- `popularity`: Obtener los 10 libros más populares
+
+#### Obtener un libro por ID
+```http
+GET /api/books/:id
+```
+
+#### Crear un nuevo libro
+```http
+POST /api/books
+```
+```json
+{
+  "title": "El Quijote",
+  "author": "Miguel de Cervantes",
+  "isbn": "978-84-376-0494-7",
+  "category": "Novela",
+  "description": "La obra cumbre de la literatura española"
+}
+```
+
+#### Actualizar un libro
+```http
+PUT /api/books/:id
+```
+
+#### Eliminar un libro
+```http
+DELETE /api/books/:id
+```
+
+### Endpoints de Usuarios
+
+#### Obtener todos los usuarios
+```http
+GET /api/users
+```
+
+#### Obtener un usuario por ID
+```http
+GET /api/users/:id
+```
+
+#### Crear un nuevo usuario
+```http
+POST /api/users
+```
+```json
+{
+  "name": "Juan Pérez",
+  "email": "juan@example.com",
+  "role": "reader"
+}
+```
+
+#### Actualizar un usuario
+```http
+PUT /api/users/:id
+```
+
+#### Eliminar un usuario
+```http
+DELETE /api/users/:id
+```
+
 ## Miembros del proyecto 
 
 ---
