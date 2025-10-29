@@ -5,8 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest -ui",
-    "build": "npx tsc --watch",
-    "dev": "node --watch ./dist/index.js"
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "start": "node ./dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "clean": "rimraf dist"
   },
   "keywords": [],
   "author": "",

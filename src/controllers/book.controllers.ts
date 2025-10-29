@@ -21,11 +21,11 @@ export class BookController {
         try {
             const id = req.params.id;
             if (!id) {
-                return res.status(400).json({ error: 'User ID is required' });
+                return res.status(400).json({ error: 'Book ID is required' });
             }
-            const user = await this.bookService.getById(id);
-            if (!user) return res.status(404).json({ error: 'User not found' });
-            res.json(user);
+            const book = await this.bookService.getById(id);
+            if (!book) return res.status(404).json({ error: 'Book not found' });
+            res.json(book);
         } catch (error) {
             res.status(500).json({ error: 'Error getting user' });
         }
@@ -43,11 +43,11 @@ export class BookController {
         try {
             const id = req.params.id;
             if (!id) {
-                return res.status(400).json({ error: 'User ID is required' });
+                return res.status(400).json({ error: 'Book ID is required' });
             }
-            const user = await this.bookService.update(id, req.body);
-            if (!user) return res.status(404).json({ error: 'User not found' });
-            res.json(user);
+            const book = await this.bookService.update(id, req.body);
+            if (!book) return res.status(404).json({ error: 'Book not found' });
+            res.json(book);
         } catch (error) {
             res.status(400).json({ error: 'Error updating user' });
         }
@@ -58,10 +58,10 @@ export class BookController {
         try {
             const id = req.params.id;
             if (!id) {
-                return res.status(400).json({ error: 'User ID is required' });
+                return res.status(400).json({ error: 'Book ID is required' });
             }
             const result = await this.bookService.delete(id);
-            if (!result) return res.status(404).json({ error: 'User not found' });
+            if (!result) return res.status(404).json({ error: 'Book not found' });
             res.status(204).send();
         } catch (error) {
             res.status(500).json({ error: 'Error deleting user' });

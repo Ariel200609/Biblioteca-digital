@@ -47,6 +47,32 @@ El sistema permitirá:
 
 ✨ _Proyecto desarrollado como práctica de arquitectura de software y patrones de diseño aplicados en TypeScript/Node.js._
 
+## 🛠️ Instalación y Uso
+
+1. Clonar el repositorio:
+```bash
+git clone https://github.com/Ariel200609/Biblioteca-digital.git
+cd Biblioteca-digital
+```
+
+2. Instalar dependencias:
+```bash
+npm install
+```
+
+3. Iniciar en modo desarrollo:
+```bash
+npm run dev
+```
+
+### Scripts disponibles
+
+- `npm run dev`: Inicia el servidor en modo desarrollo con recarga automática
+- `npm run build`: Compila el proyecto para producción
+- `npm run build:watch`: Compila el proyecto en modo watch
+- `npm start`: Inicia el servidor en modo producción
+- `npm test`: Ejecuta las pruebas con interfaz visual
+
 ## Miembros del proyecto 
 
 ---
