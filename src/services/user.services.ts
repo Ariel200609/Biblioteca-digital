@@ -22,6 +22,7 @@ export class UserService {
         return user;
     }
 
+<<<<<<< HEAD
    async update(id: string, userData: Partial<User>): Promise<User | null> {
     const index = this.users.findIndex(user => user.id === id);
     if (index === -1) return null;
@@ -41,6 +42,25 @@ export class UserService {
     return updatedUser;
 }
 
+=======
+    async update(id: string, userData: Partial<User>): Promise<User | null> {
+        const index = this.users.findIndex(user => user.id === id);
+        if (index === -1) return null;
+        
+        const currentUser = this.users[index];
+        if (!currentUser) return null;
+        
+        const updatedUser = new User(
+            currentUser.id,
+            userData.name || currentUser.name,
+            userData.email || currentUser.email,
+            userData.role || currentUser.role
+        );
+        
+        this.users[index] = updatedUser;
+        return updatedUser;
+    }
+>>>>>>> origin/develop
 
     async delete(id: string): Promise<boolean> {
         const index = this.users.findIndex(user => user.id === id);

@@ -4,20 +4,25 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "vitest -ui",
-    "build": "npx tsc --watch",
-    "dev": "node --watch ./dist/index.js"
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "start": "node ./dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "clean": "rimraf dist"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^24.5.1",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.2",
-    "vitest": "^3.2.4",
-    "@types/cors": "^2.8.19"
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "cors": "^2.8.5",
