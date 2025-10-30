@@ -1,6 +1,7 @@
 import { LoanService } from '../../services/loan.services';
 import { NotificationSystem } from './notificationSystem';
 import { LoanStatus } from '../../models/loan.models';
+import { LoanNotification } from './notificationTypes';
 
 export class LoanNotificationService {
     constructor(
@@ -20,36 +21,38 @@ export class LoanNotificationService {
 
             // Notificar préstamos que vencen en 3 días
             if (this.isDateInRange(loan.dueDate, today, threeDaysFromNow)) {
-                this.notificationSystem.notify({
-                    userId: loan.userId,
-                    message: `Your loan for book ID ${loan.bookId} is due in ${
-                        this.getDaysUntil(loan.dueDate)
-                    } days. Please return it or renew if possible.`,
-                    type: 'LOAN_DUE',
-                    createdAt: new Date(),
-                    metadata: {
+                const daysUntil = this.getDaysUntil(loan.dueDate);
+                const notification = new LoanNotification(
+                    loan.userId,
+                    'LOAN_DUE',
+                    `Your loan for book ID ${loan.bookId} is due in ${daysUntil} days. Please return it or renew if possible.`,
+                    {
                         loanId: loan.id,
+                        bookId: loan.bookId,
                         dueDate: loan.dueDate,
-                        daysRemaining: this.getDaysUntil(loan.dueDate)
+                        daysUntilDue: daysUntil,
+                        timestamp: new Date()
                     }
-                });
+                );
+                this.notificationSystem.notify(notification.toDetails());
             }
 
             // Notificar préstamos vencidos
             if (loan.dueDate < today) {
-                this.notificationSystem.notify({
-                    userId: loan.userId,
-                    message: `Your loan for book ID ${loan.bookId} is overdue by ${
-                        this.getDaysSince(loan.dueDate)
-                    } days. Please return it as soon as possible.`,
-                    type: 'LOAN_OVERDUE',
-                    createdAt: new Date(),
-                    metadata: {
+                const daysOverdue = this.getDaysSince(loan.dueDate);
+                const notification = new LoanNotification(
+                    loan.userId,
+                    'LOAN_OVERDUE',
+                    `Your loan for book ID ${loan.bookId} is overdue by ${daysOverdue} days. Please return it as soon as possible.`,
+                    {
                         loanId: loan.id,
+                        bookId: loan.bookId,
                         dueDate: loan.dueDate,
-                        daysOverdue: this.getDaysSince(loan.dueDate)
+                        daysOverdue: daysOverdue,
+                        timestamp: new Date()
                     }
-                });
+                );
+                this.notificationSystem.notify(notification.toDetails());
             }
         }
     }

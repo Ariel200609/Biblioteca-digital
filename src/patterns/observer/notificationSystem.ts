@@ -8,11 +8,14 @@ export type NotificationType =
     | 'SYSTEM';
 
 export interface INotification {
+    id: string;
     userId: string;
     message: string;
     type: NotificationType;
     createdAt: Date;
-    metadata?: Record<string, unknown>;
+    priority: 'LOW' | 'MEDIUM' | 'HIGH';
+    read: boolean;
+    metadata: Record<string, unknown>;
 }
 
 export interface INotificationObserver {
