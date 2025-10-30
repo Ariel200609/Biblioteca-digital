@@ -1,4 +1,6 @@
 export class User {
+    public isActive: boolean = true;
+    
     constructor(
         public id: string,
         public name: string,
