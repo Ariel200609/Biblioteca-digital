@@ -10,23 +10,61 @@ export class EmailNotificationObserver implements INotificationObserver {
 
 // Observer para notificaciones en el sistema
 export class SystemNotificationObserver implements INotificationObserver {
-    private notifications: Map<string, INotification[]> = new Map();
+    private userNotifications: Map<string, INotification[]> = new Map();
 
     update(notification: INotification): void {
-        const userNotifications = this.notifications.get(notification.userId) || [];
-        userNotifications.push(notification);
-        this.notifications.set(notification.userId, userNotifications);
+        const notifications = this.userNotifications.get(notification.userId) || [];
+        notifications.push(notification);
+        this.userNotifications.set(notification.userId, notifications);
         console.log(`🔔 System notification for ${notification.userId}: ${notification.message}`);
     }
 
-    // Obtener notificaciones de un usuario
-    getUserNotifications(userId: string): INotification[] {
-        return this.notifications.get(userId) || [];
+    getUserNotifications(userId: string, options?: {
+        onlyUnread?: boolean;
+        type?: string[];
+        limit?: number;
+    }): INotification[] {
+        let notifications = this.userNotifications.get(userId) || [];
+
+        if (options?.onlyUnread) {
+            notifications = notifications.filter(n => !n.read);
+        }
+
+        if (options?.type) {
+            notifications = notifications.filter(n => options.type!.includes(n.type));
+        }
+
+        if (options?.limit) {
+            notifications = notifications.slice(0, options.limit);
+        }
+
+        return notifications;
     }
 
-    // Marcar notificaciones como leidas
-    markAsRead(userId: string): void {
-        this.notifications.delete(userId);
+    markAsRead(userId: string, notificationId: string): boolean {
+        const notifications = this.userNotifications.get(userId);
+        if (!notifications) return false;
+
+        const notification = notifications.find(n => n.id === notificationId);
+        if (!notification) return false;
+
+        notification.read = true;
+        return true;
+    }
+
+    markAllAsRead(userId: string): number {
+        const notifications = this.userNotifications.get(userId);
+        if (!notifications) return 0;
+
+        let count = 0;
+        notifications.forEach(notification => {
+            if (!notification.read) {
+                notification.read = true;
+                count++;
+            }
+        });
+
+        return count;
     }
 }
 

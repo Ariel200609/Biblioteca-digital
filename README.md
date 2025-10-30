@@ -225,6 +225,55 @@ Extiende la fecha de vencimiento del préstamo. Limitado a 2 renovaciones por pr
 }
 ```
 
+### Endpoints de Notificaciones
+
+#### Obtener notificaciones del usuario
+```http
+GET /api/notifications/user/:userId
+```
+
+Query params opcionales:
+- `unreadOnly=true`: Solo notificaciones no leídas
+- `type=LOAN_DUE,LOAN_OVERDUE`: Filtrar por tipos específicos
+- `limit=10`: Limitar número de resultados
+
+#### Marcar notificación como leída
+```http
+POST /api/notifications/user/:userId/:notificationId/read
+```
+Marca una notificación específica como leída.
+
+#### Marcar todas las notificaciones como leídas
+```http
+POST /api/notifications/user/:userId/read-all
+```
+Marca todas las notificaciones del usuario como leídas.
+
+### Endpoints de Reportes
+
+#### Obtener reporte de préstamos activos
+```http
+GET /api/reports/loans/active
+```
+Retorna información detallada sobre todos los préstamos activos.
+
+#### Obtener reporte de usuarios activos
+```http
+GET /api/reports/users/active
+```
+Retorna estadísticas sobre usuarios activos y sus préstamos.
+
+#### Obtener estadísticas de libros
+```http
+GET /api/reports/books/statistics
+```
+Retorna estadísticas detalladas sobre los libros, incluyendo:
+- Total de libros
+- Libros disponibles
+- Libros prestados
+- Libros más populares
+- Libros vencidos
+
 ## Miembros del proyecto 
 
 ---
