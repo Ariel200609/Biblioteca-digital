@@ -15,7 +15,10 @@ export interface INotification {
     createdAt: Date;
     priority: 'LOW' | 'MEDIUM' | 'HIGH';
     read: boolean;
-    metadata: Record<string, unknown>;
+    metadata: {
+        timestamp: Date;
+        [key: string]: unknown;
+    };
 }
 
 export interface INotificationObserver {

@@ -24,10 +24,10 @@ export interface Loan {
 }
 
 export interface LoanWithDetails extends Loan {
-    book?: {
+    book: {
         title: string;
         author: string;
-    };
+    } | undefined;
     user?: {
         name: string;
         email: string;

@@ -1,5 +1,6 @@
 import { CreateLoanDTO, Loan, LoanStatus, LoanWithDetails } from '../models/loan.models';
 import { NotificationSystem } from '../patterns/observer/notificationSystem';
+import { LoanNotification } from '../patterns/observer/notificationTypes';
 import { BookService } from './book.services';
 import { UserService } from './user.services';
 
@@ -42,13 +43,19 @@ export class LoanService {
         
         this.loans.set(loan.id, loan);
         
-        // Notify user
-        this.notificationSystem.notify({
-            userId: data.userId,
-            message: `Book loan created. Due date: ${loan.dueDate.toLocaleDateString()}`,
-            type: 'LOAN_CREATED',
-            createdAt: new Date()
-        });
+        // Notify user using the new LoanNotification
+        const notification = new LoanNotification(
+            data.userId,
+            'LOAN_CREATED',
+            `Book loan created. Due date: ${loan.dueDate.toLocaleDateString()}`,
+            {
+                loanId: loan.id,
+                bookId: loan.bookId,
+                dueDate: loan.dueDate,
+                timestamp: new Date()
+            }
+        );
+        this.notificationSystem.notify(notification.toDetails());
 
         return loan;
     }
@@ -80,12 +87,18 @@ export class LoanService {
         // Make book available again
         await this.bookService.update(loan.bookId, { available: true });
 
-        this.notificationSystem.notify({
-            userId: loan.userId,
-            message: 'Book returned successfully',
-            type: 'LOAN_RETURNED',
-            createdAt: new Date()
-        });
+        const notification = new LoanNotification(
+            loan.userId,
+            'LOAN_RETURNED',
+            'Book returned successfully',
+            {
+                loanId: loan.id,
+                bookId: loan.bookId,
+                dueDate: loan.dueDate,
+                timestamp: new Date()
+            }
+        );
+        this.notificationSystem.notify(notification.toDetails());
 
         return loan;
     }
@@ -105,14 +118,26 @@ export class LoanService {
         loan.dueDate = new Date(Date.now() + this.LOAN_DURATION_DAYS * 24 * 60 * 60 * 1000);
         loan.renewalCount++;
 
-        this.notificationSystem.notify({
-            userId: loan.userId,
-            message: `Loan renewed. New due date: ${loan.dueDate.toLocaleDateString()}`,
-            type: 'LOAN_RENEWED',
-            createdAt: new Date()
-        });
+        const notification = new LoanNotification(
+            loan.userId,
+            'LOAN_RENEWED',
+            `Loan renewed. New due date: ${loan.dueDate.toLocaleDateString()}`,
+            {
+                loanId: loan.id,
+                bookId: loan.bookId,
+                dueDate: loan.dueDate,
+                timestamp: new Date()
+            }
+        );
+        this.notificationSystem.notify(notification.toDetails());
 
         return loan;
+    }
+
+    private calculateDaysOverdue(dueDate: Date): number {
+        const today = new Date();
+        const diffTime = today.getTime() - dueDate.getTime();
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     }
 
     private async enrichLoanWithDetails(loan: Loan): Promise<LoanWithDetails> {
@@ -136,12 +161,19 @@ export class LoanService {
             if (loan.status === LoanStatus.ACTIVE && now > loan.dueDate) {
                 loan.status = LoanStatus.OVERDUE;
                 
-                this.notificationSystem.notify({
-                    userId: loan.userId,
-                    message: 'Your loan is overdue. Please return the book as soon as possible.',
-                    type: 'LOAN_OVERDUE',
-                    createdAt: new Date()
-                });
+                const notification = new LoanNotification(
+                    loan.userId,
+                    'LOAN_OVERDUE',
+                    'Your loan is overdue. Please return the book as soon as possible.',
+                    {
+                        loanId: loan.id,
+                        bookId: loan.bookId,
+                        dueDate: loan.dueDate,
+                        daysOverdue: this.calculateDaysOverdue(loan.dueDate),
+                        timestamp: new Date()
+                    }
+                );
+                this.notificationSystem.notify(notification.toDetails());
             }
         }
     }

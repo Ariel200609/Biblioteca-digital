@@ -3,6 +3,7 @@ import { NotificationType } from './notificationSystem';
 // Interfaz base para metadatos de notificaciones
 export interface BaseNotificationMetadata {
     timestamp: Date;
+    [key: string]: unknown;
 }
 
 // Metadatos específicos para notificaciones de préstamos
@@ -12,6 +13,7 @@ export interface LoanNotificationMetadata extends BaseNotificationMetadata {
     dueDate: Date;
     daysUntilDue?: number;
     daysOverdue?: number;
+    [key: string]: unknown;
 }
 
 // Metadatos específicos para notificaciones de libros
