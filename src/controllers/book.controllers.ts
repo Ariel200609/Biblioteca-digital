@@ -54,7 +54,11 @@ export class BookController {
             const book = await this.bookService.create(req.body);
             res.status(201).json(book);
         } catch (error) {
-            res.status(400).json({ error: 'Error creating book' });
+            if (error instanceof Error && error.name === 'ValidatorError') {
+                res.status(400).json({ error: error.message });
+            } else {
+                res.status(500).json({ error: 'Error creating book' });
+            }
         }
     }
 
@@ -95,7 +99,11 @@ export class BookController {
             }
             res.json(book);
         } catch (error) {
-            res.status(500).json({ error: 'Error updating book' });
+            if (error instanceof Error && error.name === 'ValidatorError') {
+                res.status(400).json({ error: error.message });
+            } else {
+                res.status(500).json({ error: 'Error updating book' });
+            }
         }
     }
 

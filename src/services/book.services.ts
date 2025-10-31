@@ -1,7 +1,21 @@
 import { Book } from '../models/book.models';
+import { isValidISBN } from '../utils/validators';
+
+export class ValidatorError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'ValidatorError';
+    }
+}
 
 export class BookService {
     private books: Book[] = [];
+    private readonly validCategories = [
+        'Novela', 'Poesia', 'Teatro', 'Ensayo', 'Biografia', 
+        'Historia', 'Filosofia', 'Psicologia', 'Ciencias', 
+        'Tecnologia', 'Arte', 'Infantil', 'Juvenil', 'Comic',
+        'Referencia', 'Educacion'
+    ];
 
     async getAll(): Promise<Book[]> {
         return this.books;
@@ -12,10 +26,28 @@ export class BookService {
     }
 
     async create(bookData: Omit<Book, 'id' | 'createdAt' | 'available'>): Promise<Book> {
+        // Validar ISBN
+        if (!isValidISBN(bookData.isbn)) {
+            throw new ValidatorError('ISBN invalido');
+        }
+
+        // Validar categoría
+        if (!this.validCategories.includes(bookData.category)) {
+            throw new ValidatorError('Categoria invalida');
+        }
+
+        // Validar datos requeridos
+        if (!bookData.title.trim()) {
+            throw new ValidatorError('El titulo es requerido');
+        }
+        if (!bookData.author.trim()) {
+            throw new ValidatorError('El autor es requerido');
+        }
+
         const book = new Book(
             Date.now().toString(),
-            bookData.title,
-            bookData.author,
+            bookData.title.trim(),
+            bookData.author.trim(),
             bookData.isbn,
             bookData.category
         );
@@ -29,10 +61,30 @@ export class BookService {
         const currentBook = this.books[index];
         if (!currentBook) return null;
         
+        // Validar ISBN si se está actualizando
+        if (bookData.isbn && !isValidISBN(bookData.isbn)) {
+            throw new ValidatorError('ISBN invalido');
+        }
+
+        // Validar categoría si se está actualizando
+        if (bookData.category && !this.validCategories.includes(bookData.category)) {
+            throw new ValidatorError('Categoria invalida');
+        }
+
+        // Validar título si se está actualizando
+        if (bookData.title && !bookData.title.trim()) {
+            throw new ValidatorError('El titulo es requerido');
+        }
+
+        // Validar autor si se está actualizando
+        if (bookData.author && !bookData.author.trim()) {
+            throw new ValidatorError('El autor es requerido');
+        }
+
         const updatedBook = new Book(
             currentBook.id,
-            bookData.title || currentBook.title,
-            bookData.author || currentBook.author,
+            bookData.title?.trim() || currentBook.title,
+            bookData.author?.trim() || currentBook.author,
             bookData.isbn || currentBook.isbn,
             bookData.category || currentBook.category,
             bookData.available !== undefined ? bookData.available : currentBook.available
