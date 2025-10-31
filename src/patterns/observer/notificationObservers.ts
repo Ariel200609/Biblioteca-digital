@@ -1,14 +1,6 @@
 import { INotification, INotificationObserver } from './notificationSystem';
 
-// Observer para notificaciones por email
-export class EmailNotificationObserver implements INotificationObserver {
-    update(notification: INotification): void {
-        // En una implementación real, aqui se enviaria un email
-        console.log(`📧 Email to ${notification.userId}: ${notification.message}`);
-    }
-}
-
-// Observer para notificaciones en el sistema
+// Observer para notificaciones del sistema
 export class SystemNotificationObserver implements INotificationObserver {
     private userNotifications: Map<string, INotification[]> = new Map();
 
@@ -16,7 +8,31 @@ export class SystemNotificationObserver implements INotificationObserver {
         const notifications = this.userNotifications.get(notification.userId) || [];
         notifications.push(notification);
         this.userNotifications.set(notification.userId, notifications);
-        console.log(`🔔 System notification for ${notification.userId}: ${notification.message}`);
+        
+        // Mostrar la notificación en el sistema
+        console.log(`Nueva notificación recibida: ${notification.type}`);
+        
+        const icon = this.getNotificationIcon(notification.type);
+        if (notification.priority === 'HIGH') {
+            console.log(`URGENT notification: ${notification.message}`);
+        } else {
+            console.log(`${icon} Sistema: ${notification.message}`);
+        }
+    }
+
+    private isLoanNotification(type: string): boolean {
+        return ['LOAN_CREATED', 'LOAN_DUE', 'LOAN_OVERDUE', 'LOAN_RETURNED', 'LOAN_RENEWED', 'SYSTEM'].includes(type);
+    }
+
+    private getNotificationIcon(type: string): string {
+        const icons: { [key: string]: string } = {
+            LOAN_CREATED: '📚',
+            LOAN_DUE: '⏰',
+            LOAN_OVERDUE: '⚠️',
+            LOAN_RETURNED: '✅',
+            LOAN_RENEWED: '🔄'
+        };
+        return icons[type] || '📣';
     }
 
     getUserNotifications(userId: string, options?: {
@@ -65,19 +81,5 @@ export class SystemNotificationObserver implements INotificationObserver {
         });
 
         return count;
-    }
-}
-
-// Observer para notificaciones urgentes (SMS/Push)
-export class UrgentNotificationObserver implements INotificationObserver {
-    update(notification: INotification): void {
-        if (this.isUrgent(notification)) {
-            // En una implementación real, aqui se enviaria un SMS o notificación push
-            console.log(`🚨 URGENT notification to ${notification.userId}: ${notification.message}`);
-        }
-    }
-
-    private isUrgent(notification: INotification): boolean {
-        return ['LOAN_OVERDUE', 'LOAN_DUE'].includes(notification.type);
     }
 }

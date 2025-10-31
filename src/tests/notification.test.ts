@@ -1,35 +1,36 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { NotificationSystem, INotification } from '../patterns/observer/notificationSystem';
-import { EmailNotificationObserver, SystemNotificationObserver, UrgentNotificationObserver } from '../patterns/observer/notificationObservers';
+import { SystemNotificationObserver } from '../patterns/observer/notificationObservers';
 import { LoanNotificationService } from '../patterns/observer/loanNotificationService';
 import { LoanService } from '../services/loan.services';
 import { LoanStatus } from '../models/loan.models';
 
 describe('Notification System', () => {
     let notificationSystem: NotificationSystem;
-    let emailObserver: EmailNotificationObserver;
     let systemObserver: SystemNotificationObserver;
-    let urgentObserver: UrgentNotificationObserver;
 
     beforeEach(() => {
         notificationSystem = new NotificationSystem();
-        emailObserver = new EmailNotificationObserver();
         systemObserver = new SystemNotificationObserver();
-        urgentObserver = new UrgentNotificationObserver();
 
-        // Spy on console.log
+        // espia en console.log para verificar salidas
         vi.spyOn(console, 'log');
     });
 
-    it('should notify all observers', () => {
-        notificationSystem.attach(emailObserver);
+    it('debe notificar al observador del sistema', () => {
         notificationSystem.attach(systemObserver);
 
         const notification: INotification = {
+            id: '1',
             userId: '1',
             message: 'Test notification',
             type: 'SYSTEM',
-            createdAt: new Date()
+            createdAt: new Date(),
+            priority: 'LOW',
+            read: false,
+            metadata: {
+                timestamp: new Date()
+            }
         };
 
         notificationSystem.notify(notification);
@@ -37,14 +38,20 @@ describe('Notification System', () => {
         expect(console.log).toHaveBeenCalledTimes(2);
     });
 
-    it('should handle urgent notifications properly', () => {
-        notificationSystem.attach(urgentObserver);
+    it('debe manejar correctamente las notificaciones urgentes', () => {
+        notificationSystem.attach(systemObserver);
 
         const urgentNotification: INotification = {
+            id: '2',
             userId: '1',
             message: 'Overdue book!',
             type: 'LOAN_OVERDUE',
-            createdAt: new Date()
+            createdAt: new Date(),
+            priority: 'HIGH',
+            read: false,
+            metadata: {
+                timestamp: new Date()
+            }
         };
 
         notificationSystem.notify(urgentNotification);
@@ -54,12 +61,18 @@ describe('Notification System', () => {
         );
     });
 
-    it('should store system notifications for users', () => {
+    it('debe almacenar las notificaciones del sistema para los usuarios', () => {
         const notification: INotification = {
+            id: '3',
             userId: '1',
             message: 'Test notification',
             type: 'SYSTEM',
-            createdAt: new Date()
+            createdAt: new Date(),
+            priority: 'LOW',
+            read: false,
+            metadata: {
+                timestamp: new Date()
+            }
         };
 
         systemObserver.update(notification);
@@ -80,11 +93,11 @@ describe('LoanNotificationService', () => {
         loanService = new LoanService(notificationSystem, null as any, null as any);
         loanNotificationService = new LoanNotificationService(loanService, notificationSystem);
 
-        // Mock the notification system's notify method
+        // simula la notificacion del sistema
         vi.spyOn(notificationSystem, 'notify');
     });
 
-    it('should notify about loans due in 3 days', async () => {
+    it('debe notificar sobre prestamos que vencen en 3 dias', async () => {
         const threeDaysFromNow = new Date();
         threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
 
@@ -98,7 +111,7 @@ describe('LoanNotificationService', () => {
             renewalCount: 0
         }];
 
-        // Mock the loan service to return our test loans
+        // Simula el servicio de prestamos para retornar nuestros prestamos de prueba
         vi.spyOn(loanService, 'getAllLoans').mockResolvedValue(mockLoans);
 
         await loanNotificationService.checkDueDates();
@@ -111,7 +124,7 @@ describe('LoanNotificationService', () => {
         );
     });
 
-    it('should notify about overdue loans', async () => {
+    it('debe notificar sobre prestamos vencidos', async () => {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
 

@@ -1,14 +1,3 @@
-<<<<<<< HEAD
-export class Loan {
-    constructor(
-        public id: string,
-        public userId: string,
-        public bookId: string,
-        public loanDate: Date,
-        public dueDate: Date,
-        public returnDate?: Date
-    ) {}
-=======
 export enum LoanStatus {
     ACTIVE = 'active',
     OVERDUE = 'overdue',
@@ -35,13 +24,12 @@ export interface Loan {
 }
 
 export interface LoanWithDetails extends Loan {
-    book: {
+    book?: {
         title: string;
         author: string;
-    } | undefined;
+    };
     user?: {
         name: string;
         email: string;
     };
->>>>>>> origin/develop
 }

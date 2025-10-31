@@ -6,6 +6,11 @@ export class Book {
         public isbn: string,
         public category: string,
         public available: boolean = true,
+        public borrowCount: number = 0,
         public createdAt: Date = new Date()
     ) {}
+
+    incrementBorrowCount(): void {
+        this.borrowCount++;
+    }
 }
