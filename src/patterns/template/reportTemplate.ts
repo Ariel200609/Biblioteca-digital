@@ -11,7 +11,7 @@ export abstract class ReportTemplate<T> {
         protected bookService: BookService
     ) {}
 
-    // Método template que define el esqueleto del algoritmo
+    // Metodo template que define la estructura del algoritmo
     async generateReport(): Promise<T> {
         await this.prepareData();
         const report = await this.createReport();
@@ -19,12 +19,12 @@ export abstract class ReportTemplate<T> {
         return report;
     }
 
-    // Métodos abstractos que deben implementar las clases concretas
+    // Metodos abstractos que las clases hijas deben implementar
     protected abstract prepareData(): Promise<void>;
     protected abstract createReport(): Promise<T>;
     protected abstract formatReport(): Promise<void>;
 
-    // Métodos de utilidad comunes para todos los reportes
+    // Metodos de utilidad compartidos por todos los reportes
     protected async getActiveLoans() {
         const loans = await this.loanService.getAllLoans();
         return loans.filter(loan => loan.status === LoanStatus.ACTIVE);
@@ -41,7 +41,7 @@ export abstract class ReportTemplate<T> {
     }
 }
 
-// Implementación específica para reporte de préstamos activos
+// Implementacion para el reporte de prestamos activos
 export class ActiveLoansReport extends ReportTemplate<any> {
     private loans: any[] = [];
     private activeLoans: any[] = [];
@@ -139,9 +139,12 @@ export class BookStatisticsReport extends ReportTemplate<any> {
             .sort((a, b) => b.timesLoaned - a.timesLoaned)
             .slice(0, 5);
 
+        const booksWithActiveLoans = new Set(this.activeLoans.map(loan => loan.bookId));
+        const availableBooks = this.books.filter(book => !booksWithActiveLoans.has(book.id)).length;
+
         return {
             totalBooks: this.books.length,
-            availableBooks: this.books.filter(book => book.available).length,
+            availableBooks: availableBooks,
             loanedBooks: this.activeLoans.length,
             mostBorrowedBooks,
             overdueBooks: (await this.getOverdueLoans()).length

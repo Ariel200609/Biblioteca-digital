@@ -5,7 +5,7 @@ import { NotificationSystem } from '../patterns/observer/notificationSystem';
 import { BookService } from '../services/book.services';
 import { UserService } from '../services/user.services';
 
-// Create instances
+// Crear instancias necesarias
 const notificationSystem = new NotificationSystem();
 const bookService = new BookService();
 const userService = new UserService();
@@ -14,19 +14,19 @@ const loanController = new LoanController(loanService);
 
 export const loanRoutes = Router();
 
-// Get all loans
+// Obtener todos los prestamos
 loanRoutes.get('/', loanController.getAll);
 
-// Get loan by id
+// Obtener prestamo por id
 loanRoutes.get('/:id', loanController.getById);
 
-// Get user's active loans
+// Obtener prestamos activos de un usuario
 loanRoutes.get('/user/:userId', loanController.getUserLoans);
 
-// Create new loan
+// Crear nuevo prestamo
 loanRoutes.post('/', loanController.create);
 
-// Return a loan
+// Devolver un prestamo
 loanRoutes.post('/:id/return', loanController.returnLoan);
 
 // Renew a loan

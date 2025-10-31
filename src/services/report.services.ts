@@ -28,6 +28,6 @@ export class ReportService {
         return report.generateReport();
 
         // Get most borrowed books (top 5)
-}
+
     }
 }
