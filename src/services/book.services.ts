@@ -23,10 +23,19 @@ export class BookService {
         return book;
     }
 
+<<<<<<< HEAD
+   async update(id: string, bookData: Partial<Book>): Promise<Book | null> {
+        const index = this.books.findIndex(book => book.id === id);
+        if (index === -1) return null;
+        
+
+        // Asegurar que no se pierdan los datos existentes
+=======
      async update(id: string, bookData: Partial<Book>): Promise<Book | null> {
         const index = this.books.findIndex(book => book.id === id);
         if (index === -1) return null;
         
+>>>>>>> origin/develop
         const currentBook = this.books[index];
         if (!currentBook) return null;
         
@@ -35,8 +44,12 @@ export class BookService {
             bookData.title || currentBook.title,
             bookData.author || currentBook.author,
             bookData.isbn || currentBook.isbn,
+<<<<<<< HEAD
+            bookData.category || currentBook.category
+=======
             bookData.category || currentBook.category,
             bookData.available !== undefined ? bookData.available : currentBook.available
+>>>>>>> origin/develop
         );
         
         this.books[index] = updatedBook;

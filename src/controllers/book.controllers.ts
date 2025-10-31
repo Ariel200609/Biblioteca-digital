@@ -18,12 +18,20 @@ export class BookController {
     };
 
     getById = async (req: Request, res: Response) => {
+<<<<<<< HEAD
+         try {
+            if (!req.params.id) {
+                return res.status(400).json({ error: 'User ID is required' });
+            }
+            const book = await this.bookService.getById(req.params.id);
+=======
         try {
             const id = req.params.id;
             if (!id) {
                 return res.status(400).json({ error: 'Book ID is required' });
             }
             const book = await this.bookService.getById(id);
+>>>>>>> origin/develop
             if (!book) return res.status(404).json({ error: 'Book not found' });
             res.json(book);
         } catch (error) {
@@ -39,6 +47,14 @@ export class BookController {
         }
     };
 
+<<<<<<< HEAD
+    update = async (req: Request, res: Response) => {
+         try {
+            if (!req.params.id) {
+                return res.status(400).json({ error: 'User ID is required' });
+            }
+            const book = await this.bookService.update(req.params.id, req.body);
+=======
       update = async (req: Request, res: Response) => {
         try {
             const id = req.params.id;
@@ -46,6 +62,7 @@ export class BookController {
                 return res.status(400).json({ error: 'Book ID is required' });
             }
             const book = await this.bookService.update(id, req.body);
+>>>>>>> origin/develop
             if (!book) return res.status(404).json({ error: 'Book not found' });
             res.json(book);
         } catch (error) {
@@ -55,12 +72,20 @@ export class BookController {
 
 
     delete = async (req: Request, res: Response) => {
+<<<<<<< HEAD
+         try {
+            if (!req.params.id) {
+                return res.status(400).json({ error: 'User ID is required' });
+            }
+            const result = await this.bookService.delete(req.params.id);
+=======
         try {
             const id = req.params.id;
             if (!id) {
                 return res.status(400).json({ error: 'Book ID is required' });
             }
             const result = await this.bookService.delete(id);
+>>>>>>> origin/develop
             if (!result) return res.status(404).json({ error: 'Book not found' });
             res.status(204).send();
         } catch (error) {
