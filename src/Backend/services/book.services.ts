@@ -1,5 +1,7 @@
-import { Book } from '../models/book.models';
+import { Book } from '../../Database/entities/Book.entity';
 import { isValidISBN } from '../utils/validators';
+import { AppDataSource } from '../../Database/config/database.config';
+import { Repository } from 'typeorm';
 
 export class ValidatorError extends Error {
     constructor(message: string) {
@@ -9,7 +11,7 @@ export class ValidatorError extends Error {
 }
 
 export class BookService {
-    private books: Book[] = [];
+    private bookRepository: Repository<Book>;
     private readonly validCategories = [
         'Novela', 'Poesia', 'Teatro', 'Ensayo', 'Biografia', 
         'Historia', 'Filosofia', 'Psicologia', 'Ciencias', 
@@ -17,15 +19,19 @@ export class BookService {
         'Referencia', 'Educacion'
     ];
 
+    constructor() {
+        this.bookRepository = AppDataSource.getRepository(Book);
+    }
+
     async getAll(): Promise<Book[]> {
-        return this.books;
+        return this.bookRepository.find();
     }
 
     async getById(id: string): Promise<Book | null> {
-        return this.books.find(book => book.id === id) || null;
+        return this.bookRepository.findOneBy({ id });
     }
 
-    async create(bookData: Omit<Book, 'id' | 'createdAt' | 'available'>): Promise<Book> {
+    async create(bookData: Omit<Book, 'id' | 'createdAt' | 'updatedAt' | 'available' | 'borrowCount'>): Promise<Book> {
         // Validar ISBN
         if (!isValidISBN(bookData.isbn)) {
             throw new ValidatorError('ISBN invalido');
@@ -44,21 +50,17 @@ export class BookService {
             throw new ValidatorError('El autor es requerido');
         }
 
-        const book = new Book(
-            Date.now().toString(),
-            bookData.title.trim(),
-            bookData.author.trim(),
-            bookData.isbn,
-            bookData.category
-        );
-        this.books.push(book);
-        return book;
+        const book = new Book();
+        book.title = bookData.title.trim();
+        book.author = bookData.author.trim();
+        book.isbn = bookData.isbn;
+        book.category = bookData.category;
+
+        return this.bookRepository.save(book);
     }
 
     async update(id: string, bookData: Partial<Book>): Promise<Book | null> {
-        const index = this.books.findIndex(book => book.id === id);
-        if (index === -1) return null;
-        const currentBook = this.books[index];
+        const currentBook = await this.bookRepository.findOneBy({ id });
         if (!currentBook) return null;
         
         // Validar ISBN si se está actualizando
@@ -81,24 +83,17 @@ export class BookService {
             throw new ValidatorError('El autor es requerido');
         }
 
-        const updatedBook = new Book(
-            currentBook.id,
-            bookData.title?.trim() || currentBook.title,
-            bookData.author?.trim() || currentBook.author,
-            bookData.isbn || currentBook.isbn,
-            bookData.category || currentBook.category,
-            bookData.available !== undefined ? bookData.available : currentBook.available
-        );
+        const updatedBook = this.bookRepository.merge(currentBook, {
+            ...bookData,
+            title: bookData.title?.trim() || currentBook.title,
+            author: bookData.author?.trim() || currentBook.author
+        });
         
-        this.books[index] = updatedBook;
-        return updatedBook;
+        return this.bookRepository.save(updatedBook);
     }
 
     async delete(id: string): Promise<boolean> {
-        const index = this.books.findIndex(book => book.id === id);
-        if (index === -1) return false;
-        
-        this.books.splice(index, 1);
-        return true;
+        const result = await this.bookRepository.delete(id);
+        return result.affected ? result.affected > 0 : false;
     }
 }

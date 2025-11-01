@@ -13,7 +13,7 @@ export interface INotification {
     message: string;
     type: NotificationType;
     createdAt: Date;
-    priority: 'LOW' | 'MEDIUM' | 'HIGH';
+    priority?: 'LOW' | 'MEDIUM' | 'HIGH';
     read: boolean;
     metadata: {
         timestamp: Date;

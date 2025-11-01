@@ -33,8 +33,74 @@ describe('LoanController', () => {
     describe('getAll', () => {
         it('should return all loans', async () => {
             const mockLoans = [
-                { id: '1', userId: '1', bookId: '1', status: LoanStatus.ACTIVE },
-                { id: '2', userId: '2', bookId: '2', status: LoanStatus.RETURNED }
+                {
+                    id: '1',
+                    userId: '1',
+                    bookId: '1',
+                    status: LoanStatus.ACTIVE,
+                    dueDate: new Date(),
+                    loanDate: new Date(),
+                    returnDate: null,
+                    renewalCount: 0,
+                    user: {
+                        id: '1',
+                        name: 'Test User',
+                        email: 'test@example.com',
+                        role: 'reader',
+                        isActive: true,
+                        activeLoans: 1,
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    },
+                    book: {
+                        id: '1',
+                        title: 'Test Book',
+                        author: 'Test Author',
+                        isbn: '1234567890',
+                        category: 'Test Category',
+                        description: 'Test Description',
+                        available: true,
+                        timesLoaned: 1,
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    },
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                },
+                {
+                    id: '2',
+                    userId: '2',
+                    bookId: '2',
+                    status: LoanStatus.RETURNED,
+                    dueDate: new Date(),
+                    loanDate: new Date(),
+                    returnDate: new Date(),
+                    renewalCount: 0,
+                    user: {
+                        id: '2',
+                        name: 'Test User 2',
+                        email: 'test2@example.com',
+                        role: 'reader',
+                        isActive: true,
+                        activeLoans: 0,
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    },
+                    book: {
+                        id: '2',
+                        title: 'Test Book 2',
+                        author: 'Test Author 2',
+                        isbn: '0987654321',
+                        category: 'Test Category',
+                        description: 'Test Description',
+                        available: true,
+                        timesLoaned: 1,
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    },
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                }
             ];
 
             // Mock service response

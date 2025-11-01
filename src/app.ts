@@ -1,11 +1,21 @@
 import express from 'express';
-import { userRoutes } from './routes/user.routes';
-import { bookRoutes } from './routes/book.routes';
-import { loanRoutes } from './routes/loan.routes';
-import reportRoutes from './routes/report.routes';
-import notificationRoutes from './routes/notification.routes';
+import "reflect-metadata";
+import { userRoutes } from './Backend/routes/user.routes';
+import { bookRoutes } from './Backend/routes/book.routes';
+import { loanRoutes } from './Backend/routes/loan.routes';
+import reportRoutes from './Backend/routes/report.routes';
+import notificationRoutes from './Backend/routes/notification.routes';
+import { initializeDatabase } from './Database/config/database.config';
 
 const app = express();
+
+// Initialize database
+initializeDatabase()
+    .then(() => console.log('✅ Base de datos conectada'))
+    .catch(error => {
+        console.error('❌ Error al conectar la base de datos:', error);
+        process.exit(1);
+    });
 
 app.use(express.json());
 

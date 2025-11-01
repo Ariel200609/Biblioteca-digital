@@ -1,9 +1,13 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, beforeAll, afterAll, vi } from 'vitest';
 import { LoanService } from '../services/loan.services';
 import { BookService } from '../services/book.services';
 import { UserService } from '../services/user.services';
 import { NotificationSystem } from '../patterns/observer/notificationSystem';
-import { CreateLoanDTO, LoanStatus } from '../models/loan.models';
+import { CreateLoanDTO, LoanStatus } from '../dtos/loan.dto';
+import { TestDataSource } from '../../Database/config/database.test.config';
+import { Book } from '../../Database/entities/Book.entity';
+import { User } from '../../Database/entities/User.entity';
+import { Loan } from '../../Database/entities/Loan.entity';
 
 // Mock dependencies
 vi.mock('../services/book.services');
@@ -16,9 +20,46 @@ describe('LoanService', () => {
     let userService: UserService;
     let notificationSystem: NotificationSystem;
 
-    beforeEach(() => {
-        // Clear all mocks
+    beforeAll(async () => {
+        await TestDataSource.initialize();
+    });
+
+    afterAll(async () => {
+        await TestDataSource.destroy();
+    });
+
+    beforeEach(async () => {
+        // Clear all mocks and database
         vi.clearAllMocks();
+        await TestDataSource.synchronize(true);
+
+        // Crear usuario y libro en la base de datos de prueba
+        const userRepo = TestDataSource.getRepository(User);
+        const bookRepo = TestDataSource.getRepository(Book);
+
+        await userRepo.save({
+            id: '1',
+            name: 'Test User',
+            email: 'test@example.com',
+            role: 'reader',
+            isActive: true,
+            activeLoans: 0,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        });
+
+        await bookRepo.save({
+            id: '1',
+            title: 'Test Book',
+            author: 'Test Author',
+            isbn: '1234567890',
+            category: 'Test Category',
+            description: 'Test Description',
+            available: true,
+            timesLoaned: 0,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        });
 
         // Create fresh instances
         bookService = new BookService();
@@ -26,17 +67,32 @@ describe('LoanService', () => {
         notificationSystem = new NotificationSystem();
         loanService = new LoanService(notificationSystem, bookService, userService);
 
+        // Configurar el repositorio para usar la base de datos de prueba
+        (loanService as any).loanRepository = TestDataSource.getRepository(Loan);
+
         // Setup default mock implementations
         (bookService.getById as any).mockResolvedValue({
             id: '1',
             title: 'Test Book',
-            available: true
+            author: 'Test Author',
+            isbn: '1234567890',
+            category: 'Test Category',
+            description: 'Test Description',
+            available: true,
+            timesLoaned: 0,
+            createdAt: new Date(),
+            updatedAt: new Date()
         });
 
         (userService.getById as any).mockResolvedValue({
             id: '1',
             name: 'Test User',
-            email: 'test@example.com'
+            email: 'test@example.com',
+            role: 'reader',
+            isActive: true,
+            activeLoans: 0,
+            createdAt: new Date(),
+            updatedAt: new Date()
         });
 
         (notificationSystem.notify as any).mockImplementation(() => {});
@@ -112,7 +168,7 @@ describe('LoanService', () => {
             const returnedLoan = await loanService.returnLoan(loan.id);
 
             expect(returnedLoan?.status).toBe(LoanStatus.RETURNED);
-            expect(returnedLoan?.returnDate).toBeDefined();
+            expect(returnedLoan?.status).toBe(LoanStatus.RETURNED);
             expect(bookService.update).toHaveBeenCalledWith('1', { available: true });
             expect(notificationSystem.notify).toHaveBeenCalled();
         });

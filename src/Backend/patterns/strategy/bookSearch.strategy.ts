@@ -1,4 +1,4 @@
-import { Book } from '../../models/book.models';
+import { Book } from '../../../Database/entities/Book.entity';
 
 // Strategy interface
 export interface BookSearchStrategy {
@@ -52,7 +52,7 @@ export class PopularitySearchStrategy implements BookSearchStrategy {
     search(books: Book[], limit?: string): Book[] {
         const numLimit = limit ? parseInt(limit) : this.defaultLimit;
         return [...books]
-            .sort((a, b) => (b.borrowCount || 0) - (a.borrowCount || 0))
+            .sort((a, b) => (b.timesLoaned || 0) - (a.timesLoaned || 0))
             .slice(0, numLimit);
     }
 
