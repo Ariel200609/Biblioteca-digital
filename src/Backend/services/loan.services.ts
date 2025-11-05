@@ -1,24 +1,20 @@
-import { Loan } from '../../Database/entities/Loan.entity';
-import { CreateLoanDTO, LoanWithDetails, LoanStatus } from '../dtos/loan.dto';
-import { Repository } from 'typeorm';
-import { AppDataSource } from '../../Database/config/database.config';
+import { Loan, LoanStatus, CreateLoanDTO, LoanWithDetails } from '../models/loan.models';
 import { NotificationSystem } from '../patterns/observer/notificationSystem';
 import { LoanNotification } from '../patterns/observer/notificationTypes';
 import { BookService } from './book.services';
 import { UserService } from './user.services';
 
 export class LoanService {
-    private loanRepository: Repository<Loan>;
+    private loans: Loan[] = [];
     private readonly LOAN_DURATION_DAYS = 14;
     private readonly MAX_RENEWALS = 2;
+    private nextId = 1;
 
     constructor(
         private notificationSystem: NotificationSystem,
         private bookService: BookService,
         private userService: UserService
-    ) {
-        this.loanRepository = AppDataSource.getRepository(Loan);
-    }
+    ) {}
 
     async createLoan(data: CreateLoanDTO): Promise<Loan> {
         // Validate book availability
@@ -33,17 +29,21 @@ export class LoanService {
             throw new Error('User has reached maximum number of active loans');
         }
 
-        const loan = new Loan();
-        loan.userId = data.userId;
-        loan.bookId = data.bookId;
-        loan.dueDate = data.dueDate || new Date(Date.now() + this.LOAN_DURATION_DAYS * 24 * 60 * 60 * 1000);
-        loan.status = LoanStatus.ACTIVE;
-        loan.renewalCount = 0;
+        const loan: Loan = {
+            id: this.nextId.toString(),
+            userId: data.userId,
+            bookId: data.bookId,
+            loanDate: new Date(),
+            dueDate: data.dueDate || new Date(Date.now() + this.LOAN_DURATION_DAYS * 24 * 60 * 60 * 1000),
+            status: LoanStatus.ACTIVE,
+            renewalCount: 0
+        };
+
+        this.nextId++;
+        this.loans.push(loan);
 
         // Update book availability
         await this.bookService.update(data.bookId, { available: false });
-        
-        const savedLoan = await this.loanRepository.save(loan);
         
         // Notify user using the new LoanNotification
         const notification = new LoanNotification(
@@ -51,50 +51,44 @@ export class LoanService {
             'LOAN_CREATED',
             `Book loan created. Due date: ${loan.dueDate.toLocaleDateString()}`,
             {
-                loanId: savedLoan.id,
-                bookId: savedLoan.bookId,
-                dueDate: savedLoan.dueDate,
+                loanId: loan.id,
+                bookId: loan.bookId,
+                dueDate: loan.dueDate,
                 timestamp: new Date()
             }
         );
         this.notificationSystem.notify(notification.toDetails());
 
-        return savedLoan;
+        return loan;
     }
 
     async getLoanById(id: string): Promise<LoanWithDetails | null> {
-        const loan = await this.loanRepository.findOne({
-            where: { id },
-            relations: ['book', 'user']
-        });
+        const loan = this.loans.find(l => l.id === id);
         if (!loan) return null;
 
         return this.enrichLoanWithDetails(loan);
     }
 
     async getAllLoans(): Promise<Loan[]> {
-        return this.loanRepository.find();
+        return this.loans;
     }
 
     async getActiveLoansForUser(userId: string): Promise<Loan[]> {
-        return this.loanRepository.find({
-            where: {
-                userId,
-                status: LoanStatus.ACTIVE
-            }
-        });
+        return this.loans.filter(loan => 
+            loan.userId === userId && 
+            loan.status === LoanStatus.ACTIVE
+        );
     }
 
     async returnLoan(id: string): Promise<Loan | null> {
-        const loan = await this.loanRepository.findOneBy({ id });
+        const loan = this.loans.find(l => l.id === id);
         if (!loan || loan.status === LoanStatus.RETURNED) return null;
 
         loan.status = LoanStatus.RETURNED;
+        loan.returnDate = new Date();
 
         // Make book available again
         await this.bookService.update(loan.bookId, { available: true });
-
-        const updatedLoan = await this.loanRepository.save(loan);
 
         const notification = new LoanNotification(
             loan.userId,
@@ -109,11 +103,11 @@ export class LoanService {
         );
         this.notificationSystem.notify(notification.toDetails());
 
-        return updatedLoan;
+        return loan;
     }
 
     async renewLoan(id: string): Promise<Loan | null> {
-        const loan = await this.loanRepository.findOneBy({ id });
+        const loan = this.loans.find(l => l.id === id);
         if (!loan || loan.status !== LoanStatus.ACTIVE) return null;
 
         if (loan.renewalCount >= this.MAX_RENEWALS) {
@@ -126,8 +120,6 @@ export class LoanService {
 
         loan.dueDate = new Date(Date.now() + this.LOAN_DURATION_DAYS * 24 * 60 * 60 * 1000);
         loan.renewalCount++;
-
-        const updatedLoan = await this.loanRepository.save(loan);
 
         const notification = new LoanNotification(
             loan.userId,
@@ -142,7 +134,7 @@ export class LoanService {
         );
         this.notificationSystem.notify(notification.toDetails());
 
-        return updatedLoan;
+        return loan;
     }
 
     private calculateDaysOverdue(dueDate: Date): number {
@@ -158,15 +150,11 @@ export class LoanService {
         ]);
 
         return {
-            id: loan.id,
-            userId: loan.userId,
-            bookId: loan.bookId,
-            dueDate: loan.dueDate,
+            ...loan,
             returned: loan.status === LoanStatus.RETURNED,
-            renewalCount: loan.renewalCount,
-            createdAt: loan.createdAt,
             book: book ? { title: book.title, author: book.author } : undefined,
-            user: user ? { name: user.name, email: user.email } : undefined
+            user: user ? { name: user.name, email: user.email } : undefined,
+            createdAt: loan.loanDate
         };
     }
 
@@ -174,14 +162,11 @@ export class LoanService {
     async checkOverdueLoans(): Promise<void> {
         const now = new Date();
         
-        const activeLoans = await this.loanRepository.find({
-            where: { status: LoanStatus.ACTIVE }
-        });
+        const activeLoans = this.loans.filter(loan => loan.status === LoanStatus.ACTIVE);
         
         for (const loan of activeLoans) {
             if (now > loan.dueDate) {
                 loan.status = LoanStatus.OVERDUE;
-                await this.loanRepository.save(loan);
                 
                 const notification = new LoanNotification(
                     loan.userId,

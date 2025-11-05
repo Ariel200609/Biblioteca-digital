@@ -1,13 +1,9 @@
-import { describe, it, expect, beforeEach, beforeAll, afterAll, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { LoanService } from '../services/loan.services';
 import { BookService } from '../services/book.services';
 import { UserService } from '../services/user.services';
 import { NotificationSystem } from '../patterns/observer/notificationSystem';
-import { CreateLoanDTO, LoanStatus } from '../dtos/loan.dto';
-import { TestDataSource } from '../../Database/config/database.test.config';
-import { Book } from '../../Database/entities/Book.entity';
-import { User } from '../../Database/entities/User.entity';
-import { Loan } from '../../Database/entities/Loan.entity';
+import { CreateLoanDTO, LoanStatus } from '../models/loan.models';
 
 // Mock dependencies
 vi.mock('../services/book.services');
@@ -20,55 +16,35 @@ describe('LoanService', () => {
     let userService: UserService;
     let notificationSystem: NotificationSystem;
 
-    beforeAll(async () => {
-        await TestDataSource.initialize();
-    });
-
-    afterAll(async () => {
-        await TestDataSource.destroy();
-    });
-
-    beforeEach(async () => {
-        // Clear all mocks and database
+    beforeEach(() => {
+        // Clear all mocks
         vi.clearAllMocks();
-        await TestDataSource.synchronize(true);
 
-        // Crear usuario y libro en la base de datos de prueba
-        const userRepo = TestDataSource.getRepository(User);
-        const bookRepo = TestDataSource.getRepository(Book);
+        // Setup mock services
+        bookService = {
+            getById: vi.fn(),
+            update: vi.fn()
+        } as any;
 
-        await userRepo.save({
+        userService = {
+            getById: vi.fn()
+        } as any;
+
+        notificationSystem = {
+            notify: vi.fn()
+        } as any;
+
+        // Setup test data
+        const testUser = {
             id: '1',
             name: 'Test User',
             email: 'test@example.com',
             role: 'reader',
-            isActive: true,
-            activeLoans: 0,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        });
+            isActive: true
+        };
 
-        await bookRepo.save({
-            id: '1',
-            title: 'Test Book',
-            author: 'Test Author',
-            isbn: '1234567890',
-            category: 'Test Category',
-            description: 'Test Description',
-            available: true,
-            timesLoaned: 0,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        });
-
-        // Create fresh instances
-        bookService = new BookService();
-        userService = new UserService();
-        notificationSystem = new NotificationSystem();
+        // Create the loan service with mock dependencies
         loanService = new LoanService(notificationSystem, bookService, userService);
-
-        // Configurar el repositorio para usar la base de datos de prueba
-        (loanService as any).loanRepository = TestDataSource.getRepository(Loan);
 
         // Setup default mock implementations
         (bookService.getById as any).mockResolvedValue({
@@ -79,9 +55,7 @@ describe('LoanService', () => {
             category: 'Test Category',
             description: 'Test Description',
             available: true,
-            timesLoaned: 0,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            timesLoaned: 0
         });
 
         (userService.getById as any).mockResolvedValue({
@@ -89,10 +63,7 @@ describe('LoanService', () => {
             name: 'Test User',
             email: 'test@example.com',
             role: 'reader',
-            isActive: true,
-            activeLoans: 0,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            isActive: true
         });
 
         (notificationSystem.notify as any).mockImplementation(() => {});

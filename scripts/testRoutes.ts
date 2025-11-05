@@ -50,16 +50,33 @@ async function testAllRoutes() {
         // Test rutas de usuarios
         console.log('\n👥 Probando rutas de usuarios...');
         
-        // Crear un nuevo usuario
-        const newUser = {
-            name: 'Usuario Test',
-            email: `test${Date.now()}@test.com`,
-            password: 'password123'
-        };
+        // Crear usuarios con diferentes roles
+        const users = [
+            {
+                name: 'Admin Test',
+                email: `admin${Date.now()}@test.com`,
+                role: 'ADMIN' as const
+            },
+            {
+                name: 'Librarian Test',
+                email: `librarian${Date.now()}@test.com`,
+                role: 'LIBRARIAN' as const
+            },
+            {
+                name: 'Reader Test',
+                email: `reader${Date.now()}@test.com`,
+                role: 'READER' as const
+            }
+        ];
         
-        const createUserResponse = await axios.post(`${API_URL}/users`, newUser);
-        formatResponse('POST', '/users', createUserResponse);
-        testData.user = createUserResponse.data;
+        // Crear usuarios con diferentes roles
+        for (const userData of users) {
+            const createUserResponse = await axios.post(`${API_URL}/users`, userData);
+            formatResponse('POST', '/users', createUserResponse);
+            if (userData.role === 'READER') {
+                testData.user = createUserResponse.data;
+            }
+        }
 
         // GET usuarios
         const usersResponse = await axios.get(`${API_URL}/users`);
