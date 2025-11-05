@@ -5,12 +5,14 @@ export enum LoanStatus {
     CANCELLED = 'cancelled'
 }
 
+// DTO para crear un préstamo
 export interface CreateLoanDTO {
     userId: string;
     bookId: string;
-    dueDate: Date;
+    dueDate?: Date; // Opcional para permitir fechas por defecto
 }
 
+// Modelo principal de préstamo
 export interface Loan {
     id: string;
     userId: string;
@@ -23,6 +25,7 @@ export interface Loan {
     notes?: string;
 }
 
+// DTO con detalles extendidos del préstamo
 export interface LoanWithDetails extends Loan {
     book?: {
         title: string;
@@ -32,4 +35,6 @@ export interface LoanWithDetails extends Loan {
         name: string;
         email: string;
     };
+    returned: boolean;
+    createdAt: Date;
 }
