@@ -32,7 +32,7 @@ function App() {
       >
         <Navbar />
 
-        {/* Main Container corregido */}
+        {/* Main Container */}
         <main style={{ 
           flex: 1,                // Ocupar todo el espacio restante
           paddingTop: '70px',     // Compensar la navbar fija
