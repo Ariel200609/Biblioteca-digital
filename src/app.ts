@@ -16,7 +16,10 @@ initializeDatabase()
         console.error('❌ Error al conectar la base de datos:', error);
         process.exit(1);
     });
-
+    
+app.get('/', (req, res) => {
+    res.json({ status: 'ok', message: 'API funcionando correctamente' });
+})
 app.use(express.json());
 
 // Routes
