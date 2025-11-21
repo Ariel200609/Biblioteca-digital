@@ -2,16 +2,23 @@
 
 .home-container {
   animation: fadeIn 0.8s ease-out;
-  padding-top: 2rem;
+  /* Altura dinámica: 100vh menos la navbar (70px) y un poco de padding (40px) */
+  height: calc(100vh - 110px); 
+  width: 100%; /* CRUCIAL: Esto faltaba, por eso se veía angosto */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .hero-section {
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 2rem;
+  width: 100%; /* Asegurar que el texto tenga espacio */
 }
 
 .hero-title {
-  font-size: 3.5rem;
+  font-size: 3rem;
   font-weight: 800;
   margin: 0;
   background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
@@ -21,23 +28,31 @@
 }
 
 .hero-subtitle {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #888;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
-/* Grid de Tarjetas */
+/* Grid 2x2 Perfecto */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
-  padding: 0 1rem;
+  /* Dos columnas iguales */
+  grid-template-columns: 1fr 1fr; 
+  /* Dos filas iguales */
+  grid-template-rows: 1fr 1fr;
+  gap: 1.5rem;
+  
+  /* Dimensiones controladas para que se vea bien */
+  width: 100%; 
+  max-width: 900px; 
+  height: 100%; 
+  max-height: 550px; /* Evita que se estire demasiado en monitores gigantes */
 }
 
 .dashboard-card {
-  background: #2a2a2a;
+  background: linear-gradient(145deg, #2a2a2a, #222);
   border: 1px solid #333;
-  border-radius: 16px;
+  border-radius: 24px; /* Bordes más redondeados */
   padding: 2rem;
   text-decoration: none;
   color: inherit;
@@ -45,28 +60,34 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 180px;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
 
-/* Efecto Hover */
 .dashboard-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-5px) scale(1.02);
   border-color: #646cff;
-  box-shadow: 0 10px 30px -10px rgba(100, 108, 255, 0.3);
-  background: #323232;
+  box-shadow: 0 15px 35px -5px rgba(100, 108, 255, 0.25);
+  z-index: 10; /* Que quede por encima al hacer hover */
+}
+
+/* Icono y Texto superior */
+.card-top {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
 }
 
 .card-icon-wrapper {
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
   background: rgba(100, 108, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1.5rem;
   color: #646cff;
   transition: background 0.3s ease;
 }
@@ -77,25 +98,54 @@
 }
 
 .card-content h3 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.5rem;
-}
-
-.card-content p {
   margin: 0;
-  color: #aaa;
-  font-size: 0.9rem;
-}
-
-.card-stat {
-  margin-top: 1.5rem;
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: #fff;
 }
 
+.card-content p {
+  margin: 4px 0 0 0;
+  color: #888;
+  font-size: 0.95rem;
+}
+
+/* Número gigante abajo a la derecha */
+.card-stat {
+  align-self: flex-end;
+  font-size: 4rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+  opacity: 0.15; /* Un poco transparente para que sea sutil */
+  transition: opacity 0.3s;
+}
+
+.dashboard-card:hover .card-stat {
+  opacity: 1; /* Brilla al hacer hover */
+  text-shadow: 0 0 20px rgba(255,255,255,0.3);
+}
+
 /* Animación de entrada */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Media Query para móviles */
+@media (max-width: 768px) {
+  .home-container {
+    height: auto;
+    padding: 2rem 0;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: 1fr; /* Una sola columna en celular */
+    grid-template-rows: auto;
+    max-height: none;
+  }
+  
+  .dashboard-card {
+    min-height: 160px;
+  }
 }

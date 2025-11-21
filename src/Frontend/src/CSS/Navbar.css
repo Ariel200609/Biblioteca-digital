@@ -1,0 +1,74 @@
+/* Navbar fija con efecto Glassmorphism */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px; /* Altura fija */
+  background: rgba(20, 20, 20, 0.8); /* Fondo semi-transparente */
+  backdrop-filter: blur(12px); /* Efecto borroso detrás */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+}
+
+.navbar-container {
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+/* Logo */
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+}
+
+.navbar-logo svg {
+  color: #646cff;
+}
+
+.highlight {
+  color: #646cff;
+}
+
+/* Enlaces */
+.navbar-links {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #aaa;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-link.active {
+  color: white;
+  background: rgba(100, 108, 255, 0.15);
+  color: #646cff;
+}
+
+.nav-link .icon {
+  font-size: 1.1rem;
+}
