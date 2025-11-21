@@ -1,0 +1,116 @@
+    .welcome-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #1a1a1a; /* Color oscuro elegante */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Estado de salida: Desvanecerse y escalar ligeramente hacia arriba */
+    .welcome-container.fade-out {
+    opacity: 0;
+    transform: scale(1.1);
+    pointer-events: none;
+    }
+
+    .content-wrapper {
+    text-align: center;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    }
+
+    /* Animación del Icono */
+    .logo-animation {
+    margin-bottom: 1rem;
+    animation: floatIn 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    opacity: 0;
+    transform: translateY(20px);
+    }
+
+    .book-icon {
+    width: 80px;
+    height: 80px;
+    color: #646cff; /* Color principal de Vite/Tu app */
+    filter: drop-shadow(0 0 15px rgba(100, 108, 255, 0.4));
+    }
+
+    /* Animación del Texto */
+    .title {
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin: 0;
+    opacity: 0;
+    animation: blurIn 1s cubic-bezier(0.22, 1, 0.36, 1) 0.4s forwards;
+    }
+
+    .highlight {
+    background: linear-gradient(120deg, #646cff, #9f7aea);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+    font-size: 1rem;
+    color: #888;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+    opacity: 0;
+    animation: fadeIn 1s ease 0.8s forwards;
+    }
+
+    /* Línea de carga elegante */
+    .loading-line {
+    width: 0%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #646cff, transparent);
+    margin: 1rem auto;
+    animation: loadLine 1.5s ease-in-out 0.6s forwards;
+    }
+
+    /* KEYFRAMES */
+
+    @keyframes floatIn {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    }
+
+    @keyframes blurIn {
+    from {
+        opacity: 0;
+        filter: blur(10px);
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        filter: blur(0);
+        transform: translateY(0);
+    }
+    }
+
+    @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+    }
+
+    @keyframes loadLine {
+    0% { width: 0%; opacity: 0; }
+    50% { width: 50%; opacity: 1; }
+    100% { width: 100%; opacity: 0; }
+    }
