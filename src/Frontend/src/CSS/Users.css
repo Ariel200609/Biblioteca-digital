@@ -1,0 +1,167 @@
+/* src/Frontend/src/pages/Users.css */
+
+.users-container {
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Header y Herramientas */
+.users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.users-search-container {
+  position: relative;
+  flex: 1;
+  max-width: 350px;
+}
+
+/* Grid de Usuarios */
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Tarjeta de Usuario */
+.user-card {
+  background: #2a2a2a;
+  border: 1px solid #333;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s;
+  overflow: hidden;
+}
+
+.user-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
+  border-color: #555;
+}
+
+/* Avatar con Iniciales */
+.user-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #444, #222);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 1rem;
+  border: 3px solid #333;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* Badge de Rol */
+.role-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+  border: 1px solid transparent;
+}
+
+.role-admin {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.role-librarian {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+.role-reader {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Info del Usuario */
+.user-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 0.25rem 0;
+}
+
+.user-email {
+  font-size: 0.9rem;
+  color: #888;
+  margin: 0 0 1.5rem 0;
+  word-break: break-all; /* Evita que emails largos rompan el diseño */
+}
+
+/* Estado (Activo/Inactivo) */
+.user-status {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.status-active {
+  background-color: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.status-inactive {
+  background-color: #666;
+}
+
+/* Botones de Acción */
+.card-actions {
+  display: flex;
+  gap: 0.8rem;
+  width: 100%;
+}
+
+.card-actions button {
+  flex: 1;
+  padding: 0.6rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid #444;
+  background: transparent;
+  color: #ccc;
+}
+
+.card-actions .btn-edit:hover {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+}
+
+.card-actions .btn-delete:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+/* Animación de entrada */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
