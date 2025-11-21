@@ -1,62 +1,178 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { type FormEvent, useEffect, useState } from 'react';
 import { apiDelete, apiGet, apiPost, apiPut } from '../api/client';
 import type { Book } from '../api/client';
+import Modal from '../pages/Modal';
+import '../CSS/Books.css';
 
 export default function Books() {
   const [books, setBooks] = useState<Book[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // Formulario
   const [form, setForm] = useState({ title: '', author: '', isbn: '', category: '' });
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  async function load() {
-    const data = await apiGet<Book[]>('/books');
-    setBooks(data);
+  // Cargar libros (o buscar si hay query)
+  async function loadBooks(query?: string) {
+    setLoading(true);
+    try {
+      let endpoint = '/books';
+      if (query) {
+        // Usamos el endpoint de búsqueda del backend
+        endpoint = `/books/search?query=${encodeURIComponent(query)}`;
+      }
+      const data = await apiGet<Book[]>(endpoint);
+      setBooks(data);
+    } catch (error) {
+      console.error("Error cargando libros:", error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
-    load();
-  }, []);
+    // Debounce para la búsqueda
+    const timeoutId = setTimeout(() => {
+      loadBooks(searchQuery);
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  function openModal(book?: Book) {
+    if (book) {
+      setEditingId(book.id);
+      setForm({ title: book.title, author: book.author, isbn: book.isbn, category: book.category });
+    } else {
+      setEditingId(null);
+      setForm({ title: '', author: '', isbn: '', category: '' });
+    }
+    setIsModalOpen(true);
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (editingId) {
-      await apiPut<Book>(`/books/${editingId}`, form);
-      setEditingId(null);
-    } else {
-      await apiPost<Book>('/books', form);
+    try {
+      if (editingId) {
+        await apiPut<Book>(`/books/${editingId}`, form);
+      } else {
+        await apiPost<Book>('/books', form);
+      }
+      setIsModalOpen(false);
+      loadBooks(searchQuery);
+    } catch (error) {
+      alert('Error al guardar el libro');
     }
-    setForm({ title: '', author: '', isbn: '', category: '' });
-    await load();
   }
 
   async function onDelete(id: string) {
+    if (!confirm('¿Estás seguro de eliminar este libro?')) return;
     await apiDelete(`/books/${id}`);
-    await load();
+    loadBooks(searchQuery);
   }
 
   return (
-    <div>
-      <h2>Libros</h2>
-      <form onSubmit={onSubmit} style={{ display: 'grid', gap: 8, maxWidth: 500 }}>
-        <input placeholder="Título" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
-        <input placeholder="Autor" value={form.author} onChange={(e) => setForm({ ...form, author: e.target.value })} required />
-        <input placeholder="ISBN" value={form.isbn} onChange={(e) => setForm({ ...form, isbn: e.target.value })} required />
-        <input placeholder="Categoría" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} required />
-        <button type="submit">{editingId ? 'Guardar cambios' : 'Crear libro'}</button>
-      </form>
+    <div className="books-container">
+      <div className="books-header">
+        <h2>Catálogo de Libros</h2>
+        
+        <div className="search-bar-container">
+          <span className="search-icon">🔍</span>
+          <input 
+            type="text" 
+            className="search-input" 
+            placeholder="Buscar por título, autor..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
 
-      <ul style={{ marginTop: 16 }}>
-        {books.map((b) => (
-          <li key={b.id} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <span>
-              {b.title} — {b.author} ({b.category}) {b.available === false ? '⛔ No disponible' : '✅ Disponible'}
-            </span>
-            <button onClick={() => { setEditingId(b.id); setForm({ title: b.title, author: b.author, isbn: b.isbn, category: b.category }); }}>Editar</button>
-            <button onClick={() => onDelete(b.id)}>Eliminar</button>
-          </li>
-        ))}
-      </ul>
+        <button className="add-btn" onClick={() => openModal()}>
+          <span>+</span> Nuevo Libro
+        </button>
+      </div>
+
+      {loading ? (
+        <div style={{textAlign: 'center', color: '#666'}}>Cargando catálogo...</div>
+      ) : (
+        <div className="books-grid">
+          {books.map((b) => (
+            <div key={b.id} className="book-card">
+              <div className="book-cover-placeholder">
+                <div className="book-category-badge">{b.category}</div>
+                {/* Icono de libro grande */}
+                <svg className="book-icon-large" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              </div>
+              
+              <div className="book-info">
+                <h3 className="book-title">{b.title}</h3>
+                <p className="book-author">{b.author}</p>
+                
+                <div className="book-footer">
+                  <div className={`status-indicator ${b.available !== false ? 'available' : 'loaned'}`}>
+                    <div className={`status-dot ${b.available !== false ? 'status-available' : 'status-loaned'}`}></div>
+                    <span>{b.available !== false ? 'Disponible' : 'Prestado'}</span>
+                  </div>
+
+                  <div className="book-actions">
+                    <button className="icon-btn" onClick={() => openModal(b)} title="Editar">
+                      ✎
+                    </button>
+                    <button className="icon-btn delete" onClick={() => onDelete(b.id)} title="Eliminar">
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Modal para Crear/Editar */}
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        title={editingId ? "Editar Libro" : "Añadir Nuevo Libro"}
+      >
+        <form onSubmit={onSubmit}>
+          <div className="form-group">
+            <label>Título</label>
+            <input className="form-input" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
+          </div>
+          <div className="form-group">
+            <label>Autor</label>
+            <input className="form-input" value={form.author} onChange={(e) => setForm({ ...form, author: e.target.value })} required />
+          </div>
+          <div className="form-group">
+            <label>ISBN</label>
+            <input className="form-input" value={form.isbn} onChange={(e) => setForm({ ...form, isbn: e.target.value })} required />
+          </div>
+          <div className="form-group">
+            <label>Categoría</label>
+            <select 
+              className="form-input" 
+              value={form.category} 
+              onChange={(e) => setForm({ ...form, category: e.target.value })} 
+              required
+            >
+              <option value="">Seleccionar...</option>
+              <option value="Novela">Novela</option>
+              <option value="Ciencia Ficción">Ciencia Ficción</option>
+              <option value="Historia">Historia</option>
+              <option value="Tecnología">Tecnología</option>
+              <option value="Infantil">Infantil</option>
+              <option value="Otros">Otros</option>
+            </select>
+          </div>
+          
+          <div className="form-actions">
+            <button type="button" className="btn-secondary" onClick={() => setIsModalOpen(false)}>Cancelar</button>
+            <button type="submit" className="btn-primary">Guardar</button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
-
-
