@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import '../WelcomeScreen.css';
+import '../CSS/WelcomeScreen.css';
 
 interface WelcomeScreenProps {
 onComplete: () => void;

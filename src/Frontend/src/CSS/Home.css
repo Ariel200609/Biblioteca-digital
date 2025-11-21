@@ -1,0 +1,101 @@
+/* src/Frontend/src/pages/Home.css */
+
+.home-container {
+  animation: fadeIn 0.8s ease-out;
+  padding-top: 2rem;
+}
+
+.hero-section {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -1px;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: #888;
+  margin-top: 1rem;
+}
+
+/* Grid de Tarjetas */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 0 1rem;
+}
+
+.dashboard-card {
+  background: #2a2a2a;
+  border: 1px solid #333;
+  border-radius: 16px;
+  padding: 2rem;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 180px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efecto Hover */
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  border-color: #646cff;
+  box-shadow: 0 10px 30px -10px rgba(100, 108, 255, 0.3);
+  background: #323232;
+}
+
+.card-icon-wrapper {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: rgba(100, 108, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  color: #646cff;
+  transition: background 0.3s ease;
+}
+
+.dashboard-card:hover .card-icon-wrapper {
+  background: #646cff;
+  color: white;
+}
+
+.card-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.card-content p {
+  margin: 0;
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.card-stat {
+  margin-top: 1.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* Animación de entrada */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
