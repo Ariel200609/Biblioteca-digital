@@ -49,21 +49,60 @@ El sistema permitirá:
 
 ## 🛠️ Instalación y Uso
 
-1. Clonar el repositorio:
+### ⚙️ Requisitos previos
+- **Node.js** v16 o superior
+- **MySQL** v5.7 o superior (o MariaDB)
+- **npm** v7 o superior
+
+### 📋 Pasos de instalación
+
+#### 1. Clonar el repositorio:
 ```bash
 git clone https://github.com/Ariel200609/Biblioteca-digital.git
 cd Biblioteca-digital
 ```
 
-2. Instalar dependencias:
+#### 2. Instalar dependencias:
 ```bash
 npm install
 ```
 
-3. Iniciar en modo desarrollo:
+#### 3. ⚠️ **Configurar la Base de Datos (MUY IMPORTANTE)**
+
+**3.1. Crear archivo `.env` en la raíz del proyecto:**
+```bash
+cp .env.example .env  # Si existe
+# O crear manualmente con el siguiente contenido:
+```
+
+**3.2. Editar `.env` con tus credenciales de MySQL:**
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=1234
+DB_NAME=biblioteca_digital
+NODE_ENV=development
+PORT=3000
+```
+
+**3.3. Inicializar la base de datos:**
+```bash
+# Opción 1: Crear la BD y las tablas automáticamente
+npm run db:setup
+
+# Opción 2: Solo sincronizar las entidades (si la BD ya existe)
+npm run db:sync
+```
+
+> ⚠️ **Nota:** El archivo `database.config.ts` tiene `synchronize: true`, lo que significa que TypeORM creará automáticamente las tablas. Asegúrate de que la BD `biblioteca_digital` existe en MySQL.
+
+#### 4. Iniciar en modo desarrollo:
 ```bash
 npm run dev
 ```
+
+El servidor estará disponible en `http://localhost:3000`
 
 ### Scripts disponibles
 
@@ -72,8 +111,82 @@ npm run dev
 - `npm run build:watch`: Compila el proyecto en modo watch
 - `npm start`: Inicia el servidor en modo producción
 - `npm test`: Ejecuta las pruebas con interfaz visual
+- `npm run db:setup`: Crea la base de datos e inicializa las tablas
+- `npm run db:sync`: Sincroniza las entidades con la base de datos
+- `npm run migration:generate`: Genera una migración basada en cambios de entidades
+- `npm run migration:run`: Ejecuta las migraciones pendientes
+- `npm run migration:revert`: Revierte la última migración
 
-## 📚 API Reference
+## 🔧 Troubleshooting
+
+### ❌ Error: "connect ECONNREFUSED 127.0.0.1:3306"
+**Causa:** MySQL no está corriendo o las credenciales en `.env` son incorrectas.
+
+**Solución:**
+1. Verifica que MySQL esté iniciado:
+   - **Windows:** Abre Services y busca "MySQL80" (o tu versión)
+   - **Linux/Mac:** Ejecuta `mysql -u root -p`
+2. Revisa las credenciales en `.env` (DB_HOST, DB_USER, DB_PASSWORD)
+3. Asegúrate de que la base de datos existe: `CREATE DATABASE biblioteca_digital;`
+
+### ❌ Error: "ER_NO_DB_ERROR: No database selected"
+**Causa:** La base de datos no existe.
+
+**Solución:**
+```bash
+# En MySQL:
+CREATE DATABASE biblioteca_digital CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+# O ejecuta:
+npm run db:setup
+```
+
+### ❌ Error: "npm: command not found"
+**Causa:** Node.js o npm no está instalado.
+
+**Solución:**
+1. Descarga Node.js desde https://nodejs.org/ (LTS recomendado)
+2. Verifica la instalación: `node --version` y `npm --version`
+
+### ❌ Error: "Module not found"
+**Causa:** Las dependencias no están instaladas.
+
+**Solución:**
+```bash
+npm install
+```
+
+## 📖 Documentación de la estructura del proyecto
+
+```
+Biblioteca-digital/
+├── src/
+│   ├── Backend/
+│   │   ├── config/           # Configuración de BD y sincronización
+│   │   ├── controllers/      # Controladores de rutas
+│   │   ├── models/           # Modelos de datos (clases)
+│   │   ├── patterns/         # Patrones de diseño implementados
+│   │   ├── routes/           # Definición de rutas
+│   │   ├── services/         # Lógica de negocio
+│   │   ├── tests/            # Pruebas unitarias
+│   │   └── utils/            # Utilidades y validadores
+│   │
+│   ├── Database/
+│   │   ├── config/           # Configuración de TypeORM
+│   │   └── entities/         # Entidades de BD (User, Book, Loan, etc.)
+│   │
+│   └── Frontend/
+│       ├── src/
+│       │   ├── pages/        # Componentes principales
+│       │   ├── CSS/          # Estilos
+│       │   └── api/          # Cliente para comunicarse con Backend
+│       └── vite.config.ts    # Configuración de Vite
+│
+├── .env.example              # Plantilla de configuración
+├── .gitignore                # Archivos ignorados por Git
+├── package.json              # Dependencias y scripts
+├── tsconfig.json             # Configuración de TypeScript
+└── README.md                 # Este archivo
 
 ### Endpoints de Libros
 

@@ -1,3 +1,9 @@
+// Validador de email
+export const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email) && email.length <= 254;
+};
+
 // Validador de ISBN (soporta ISBN-10 e ISBN-13)
 export const isValidISBN = (isbn: string): boolean => {
     // Eliminar guiones y espacios

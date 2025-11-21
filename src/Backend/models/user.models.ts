@@ -5,7 +5,8 @@ export class User {
         public id: string,
         public name: string,
         public email: string,
-        public role: 'ADMIN' | 'LIBRARIAN' | 'READER',
-        public createdAt: Date = new Date()
+        public role: 'admin' | 'librarian' | 'reader',
+        public createdAt: Date = new Date(),
+        public activeLoans: number = 0
     ) {}
 }
