@@ -1,6 +1,5 @@
 import { User } from '../../models/user.models';
 import { validateEmail } from '../../utils/validators';
-import { AppDataSource } from '../../../Database/config/database.config';
 
 // Clases especificas para cada tipo de usuario
 export class Administrator extends User {
@@ -80,7 +79,6 @@ export abstract class UserFactory {
     async registerUser(id: string, name: string, email: string): Promise<User> {
         this.validateUserData(id, name, email);
         const user = this.createUser(id, name, email);
-        await this.saveUser(user);
         await this.notifyUserCreation(user);
         return user;
     }
@@ -94,19 +92,8 @@ export abstract class UserFactory {
         }
     }
 
-    protected async saveUser(user: User): Promise<void> {
-        try {
-            const userRepository = AppDataSource.getRepository(User);
-            await userRepository.save(user);
-            console.log(`Usuario ${user.name} guardado en la base de datos`);
-        } catch (error) {
-            console.error(`Error al guardar usuario: ${error}`);
-            throw error;
-        }
-    }
-
     protected async notifyUserCreation(user: User): Promise<void> {
-        console.log(`Nuevo usuario ${user.role} creado: ${user.name}`);
+        console.log(`Nuevo usuario ${user.role} creado: ${user.name} (${user.email})`);
         // Aqui iria la lógica de notificación (envío de emails, etc.)
     }
 }

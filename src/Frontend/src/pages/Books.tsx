@@ -7,6 +7,7 @@ import '../CSS/Books.css';
 export default function Books() {
   const [books, setBooks] = useState<Book[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchType, setSearchType] = useState<'title' | 'author' | 'category' | 'popularity'>('title');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -15,13 +16,13 @@ export default function Books() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   // Cargar libros (o buscar si hay query)
-  async function loadBooks(query?: string) {
+  async function loadBooks(query?: string, type: string = 'title') {
     setLoading(true);
     try {
       let endpoint = '/books';
       if (query) {
-        // Usamos el endpoint de búsqueda del backend
-        endpoint = `/books/search?query=${encodeURIComponent(query)}`;
+        // Usamos el endpoint de búsqueda del backend con tipo
+        endpoint = `/books/search?query=${encodeURIComponent(query)}&type=${encodeURIComponent(type)}`;
       }
       const data = await apiGet<Book[]>(endpoint);
       setBooks(data);
@@ -35,10 +36,10 @@ export default function Books() {
   useEffect(() => {
     // Debounce para la búsqueda
     const timeoutId = setTimeout(() => {
-      loadBooks(searchQuery);
+      loadBooks(searchQuery, searchType);
     }, 300);
     return () => clearTimeout(timeoutId);
-  }, [searchQuery]);
+  }, [searchQuery, searchType]);
 
   function openModal(book?: Book) {
     if (book) {
@@ -60,7 +61,7 @@ export default function Books() {
         await apiPost<Book>('/books', form);
       }
       setIsModalOpen(false);
-      loadBooks(searchQuery);
+      loadBooks(searchQuery, searchType);
     } catch (error) {
       alert('Error al guardar el libro');
     }
@@ -69,7 +70,7 @@ export default function Books() {
   async function onDelete(id: string) {
     if (!confirm('¿Estás seguro de eliminar este libro?')) return;
     await apiDelete(`/books/${id}`);
-    loadBooks(searchQuery);
+    loadBooks(searchQuery, searchType);
   }
 
   return (
@@ -86,6 +87,16 @@ export default function Books() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+          <select 
+            className="search-type-select"
+            value={searchType}
+            onChange={(e) => setSearchType(e.target.value as any)}
+          >
+            <option value="title">Título</option>
+            <option value="author">Autor</option>
+            <option value="category">Categoría</option>
+            <option value="popularity">Popularidad</option>
+          </select>
         </div>
 
         <button className="add-btn" onClick={() => openModal()}>

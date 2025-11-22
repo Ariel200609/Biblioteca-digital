@@ -1,7 +1,18 @@
-import { Book } from '../../Database/entities/Book.entity';
 import { isValidISBN } from '../utils/validators';
-import { AppDataSource } from '../../Database/config/database.config';
-import { Repository } from 'typeorm';
+
+interface Book {
+    id: string;
+    title: string;
+    author: string;
+    isbn: string;
+    category: string;
+    description: string;
+    available: boolean;
+    borrowCount: number;
+    timesLoaned: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
 
 export class ValidatorError extends Error {
     constructor(message: string) {
@@ -11,7 +22,7 @@ export class ValidatorError extends Error {
 }
 
 export class BookService {
-    private bookRepository: Repository<Book>;
+    private books: Book[] = [];
     private readonly validCategories = [
         'Novela', 'Poesia', 'Teatro', 'Ensayo', 'Biografia', 
         'Historia', 'Filosofia', 'Psicologia', 'Ciencias', 
@@ -19,16 +30,14 @@ export class BookService {
         'Referencia', 'Educacion'
     ];
 
-    constructor() {
-        this.bookRepository = AppDataSource.getRepository(Book);
-    }
+    constructor() {}
 
     async getAll(): Promise<Book[]> {
-        return this.bookRepository.find();
+        return this.books;
     }
 
     async getById(id: string): Promise<Book | null> {
-        return this.bookRepository.findOneBy({ id });
+        return this.books.find(b => b.id === id) || null;
     }
 
     async create(bookData: Omit<Book, 'id' | 'createdAt' | 'updatedAt' | 'available' | 'borrowCount'>): Promise<Book> {
@@ -50,22 +59,35 @@ export class BookService {
             throw new ValidatorError('El autor es requerido');
         }
 
-        const book = new Book();
-        book.title = bookData.title.trim();
-        book.author = bookData.author.trim();
-        book.isbn = bookData.isbn;
-        book.category = bookData.category;
+        const book: Book = {
+            id: Math.random().toString(36).substring(7),
+            title: bookData.title.trim(),
+            author: bookData.author.trim(),
+            isbn: bookData.isbn,
+            category: bookData.category,
+            description: bookData.description,
+            available: true,
+            borrowCount: 0,
+            timesLoaned: bookData.timesLoaned || 0,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
 
-        return this.bookRepository.save(book);
+        this.books.push(book);
+        return book;
     }
 
     async update(id: string, bookData: Partial<Book>): Promise<Book | null> {
-        const currentBook = await this.bookRepository.findOneBy({ id });
+        const currentBook = this.books.find(b => b.id === id);
         if (!currentBook) return null;
-        
-        // Validar ISBN si se está actualizando
-        if (bookData.isbn && !isValidISBN(bookData.isbn)) {
-            throw new ValidatorError('ISBN invalido');
+        // Bloquear actualización de ISBN
+        if (bookData.isbn && bookData.isbn !== currentBook.isbn) {
+            throw new ValidatorError('No se puede cambiar el ISBN de un libro');
+        }
+
+        // Bloquear actualización de ID
+        if (bookData.id && bookData.id !== currentBook.id) {
+            throw new ValidatorError('No se puede cambiar el ID de un libro');
         }
 
         // Validar categoría si se está actualizando
@@ -83,17 +105,20 @@ export class BookService {
             throw new ValidatorError('El autor es requerido');
         }
 
-        const updatedBook = this.bookRepository.merge(currentBook, {
-            ...bookData,
-            title: bookData.title?.trim() || currentBook.title,
-            author: bookData.author?.trim() || currentBook.author
-        });
-        
-        return this.bookRepository.save(updatedBook);
+        // Actualizar campos
+        if (bookData.title) currentBook.title = bookData.title.trim();
+        if (bookData.author) currentBook.author = bookData.author.trim();
+        if (bookData.category) currentBook.category = bookData.category;
+        if (bookData.available !== undefined) currentBook.available = bookData.available;
+        currentBook.updatedAt = new Date();
+
+        return currentBook;
     }
 
     async delete(id: string): Promise<boolean> {
-        const result = await this.bookRepository.delete(id);
-        return result.affected ? result.affected > 0 : false;
+        const index = this.books.findIndex(b => b.id === id);
+        if (index === -1) return false;
+        this.books.splice(index, 1);
+        return true;
     }
 }

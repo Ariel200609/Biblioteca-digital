@@ -61,14 +61,26 @@ export default function Loans() {
   async function onCreate(e: FormEvent) {
     e.preventDefault();
     try {
-      // Si no se elige fecha, calculamos 14 días
-      const datePayload = form.dueDate ? new Date(form.dueDate) : undefined;
+      // Si no se elige fecha, el Backend calcula 14 días por defecto
+      let datePayload = undefined;
+      if (form.dueDate) {
+        // Convertir string YYYY-MM-DD a fecha ISO válida
+        const date = new Date(form.dueDate + 'T00:00:00Z');
+        if (isNaN(date.getTime())) {
+          throw new Error('Invalid date format');
+        }
+        datePayload = date.toISOString();
+      }
       await apiPost<Loan>('/loans', { ...form, dueDate: datePayload });
       setIsModalOpen(false);
       setForm({ userId: '', bookId: '', dueDate: '' });
       refreshLoans();
     } catch (error) {
-      alert('Error al crear préstamo: Libro no disponible o límite de usuario alcanzado.');
+      if (error instanceof Error) {
+        alert(`Error al crear préstamo: ${error.message}`);
+      } else {
+        alert('Error al crear préstamo: Libro no disponible o límite de usuario alcanzado.');
+      }
     }
   }
 

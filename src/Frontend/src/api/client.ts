@@ -38,7 +38,7 @@ export type User = {
   id: string;
   name: string;
   email: string;
-  role: 'ADMIN' | 'LIBRARIAN' | 'READER';
+  role: 'admin' | 'librarian' | 'reader';
   isActive?: boolean;
 };
 

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { BookService } from '../services/book.services';
+import { bookServiceInstance } from '../services/instances';
 import { 
     BookSearchStrategy,
     TitleSearchStrategy, 
@@ -9,11 +9,9 @@ import {
 } from '../patterns/strategy/bookSearch.strategy';
 
 export class BookController {
-    private bookService: BookService;
     private readonly searchStrategies: { [key: string]: BookSearchStrategy };
 
     constructor() {
-        this.bookService = new BookService();
         this.searchStrategies = {
             'title': new TitleSearchStrategy(),
             'author': new AuthorSearchStrategy(),
@@ -24,7 +22,7 @@ export class BookController {
 
     public getAll = async (req: Request, res: Response): Promise<void> => {
         try {
-            const books = await this.bookService.getAll();
+            const books = await bookServiceInstance.getAll();
             res.json(books);
         } catch (error) {
             res.status(500).json({ error: 'Error getting books' });
@@ -38,7 +36,7 @@ export class BookController {
                 res.status(400).json({ error: 'Book ID is required' });
                 return;
             }
-            const book = await this.bookService.getById(id);
+            const book = await bookServiceInstance.getById(id);
             if (!book) {
                 res.status(404).json({ error: 'Book not found' });
                 return;
@@ -51,7 +49,7 @@ export class BookController {
 
     public create = async (req: Request, res: Response): Promise<void> => {
         try {
-            const book = await this.bookService.create(req.body);
+            const book = await bookServiceInstance.create(req.body);
             res.status(201).json(book);
         } catch (error) {
             if (error instanceof Error && error.name === 'ValidatorError') {
@@ -77,7 +75,7 @@ export class BookController {
                 return;
             }
 
-            const books = await this.bookService.getAll();
+            const books = await bookServiceInstance.getAll();
             const results = searchStrategy.search(books, query as string);
             res.json(results);
         } catch (error) {
@@ -92,14 +90,17 @@ export class BookController {
                 res.status(400).json({ error: 'Book ID is required' });
                 return;
             }
-            const book = await this.bookService.update(id, req.body);
+            const book = await bookServiceInstance.update(id, req.body);
             if (!book) {
                 res.status(404).json({ error: 'Book not found' });
                 return;
             }
             res.json(book);
         } catch (error) {
+            console.error('Error updating book:', error);
             if (error instanceof Error && error.name === 'ValidatorError') {
+                res.status(400).json({ error: error.message });
+            } else if (error instanceof Error) {
                 res.status(400).json({ error: error.message });
             } else {
                 res.status(500).json({ error: 'Error updating book' });
@@ -114,7 +115,7 @@ export class BookController {
                 res.status(400).json({ error: 'Book ID is required' });
                 return;
             }
-            const success = await this.bookService.delete(id);
+            const success = await bookServiceInstance.delete(id);
             if (!success) {
                 res.status(404).json({ error: 'Book not found' });
                 return;

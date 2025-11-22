@@ -1,13 +1,11 @@
 import { Request, Response } from 'express';
-import { LoanService } from '../services/loan.services';
+import { loanServiceInstance } from '../services/instances';
 import { CreateLoanDTO } from '../models/loan.models';
 
 export class LoanController {
-    constructor(private loanService: LoanService) {}
-
     getAll = async (_req: Request, res: Response) => {
         try {
-            const loans = await this.loanService.getAllLoans();
+            const loans = await loanServiceInstance.getAllLoans();
             res.json(loans);
         } catch (error) {
             res.status(500).json({ error: 'Error getting loans' });
@@ -20,7 +18,7 @@ export class LoanController {
             if (!id) {
                 return res.status(400).json({ error: 'Loan ID is required' });
             }
-            const loan = await this.loanService.getLoanById(id);
+            const loan = await loanServiceInstance.getLoanById(id);
             if (!loan) return res.status(404).json({ error: 'Loan not found' });
             res.json(loan);
         } catch (error) {
@@ -31,7 +29,7 @@ export class LoanController {
     create = async (req: Request, res: Response) => {
         try {
             const loanData: CreateLoanDTO = req.body;
-            const loan = await this.loanService.createLoan(loanData);
+            const loan = await loanServiceInstance.createLoan(loanData);
             res.status(201).json(loan);
         } catch (error) {
             if (error instanceof Error) {
@@ -48,7 +46,7 @@ export class LoanController {
             if (!id) {
                 return res.status(400).json({ error: 'Loan ID is required' });
             }
-            const loan = await this.loanService.returnLoan(id);
+            const loan = await loanServiceInstance.returnLoan(id);
             if (!loan) return res.status(404).json({ error: 'Loan not found' });
             res.json(loan);
         } catch (error) {
@@ -62,7 +60,7 @@ export class LoanController {
             if (!id) {
                 return res.status(400).json({ error: 'Loan ID is required' });
             }
-            const loan = await this.loanService.renewLoan(id);
+            const loan = await loanServiceInstance.renewLoan(id);
             if (!loan) return res.status(404).json({ error: 'Loan not found or cannot be renewed' });
             res.json(loan);
         } catch (error) {
@@ -80,7 +78,7 @@ export class LoanController {
             if (!userId) {
                 return res.status(400).json({ error: 'User ID is required' });
             }
-            const loans = await this.loanService.getActiveLoansForUser(userId);
+            const loans = await loanServiceInstance.getActiveLoansForUser(userId);
             res.json(loans);
         } catch (error) {
             res.status(500).json({ error: 'Error getting user loans' });

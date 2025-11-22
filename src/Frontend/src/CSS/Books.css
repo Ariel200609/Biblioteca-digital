@@ -17,11 +17,15 @@
 .search-bar-container {
   position: relative;
   flex: 1;
-  max-width: 400px;
+  max-width: 500px;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .search-input {
   width: 100%;
+  flex: 1;
   padding: 0.8rem 1rem 0.8rem 2.5rem;
   border-radius: 12px;
   border: 1px solid #444;
@@ -226,4 +230,43 @@
 .btn-primary {
   background: #646cff;
   color: white;
+}
+
+/* Estilos para el selector de tipo de búsqueda */
+.search-type-select {
+  padding: 0.8rem 1rem !important;
+  border-radius: 12px !important;
+  border: 1px solid #444 !important;
+  background: #1a1a1a !important;
+  color: white !important;
+  font-size: 1rem !important;
+  cursor: pointer !important;
+  transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s !important;
+  appearance: none !important;
+  padding-right: 2.5rem !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.7rem center !important;
+  background-size: 1.2em 1.2em !important;
+}
+
+.search-type-select:hover {
+  border-color: #646cff !important;
+  background-color: #232323 !important;
+}
+
+.search-type-select:focus {
+  border-color: #646cff !important;
+  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.2) !important;
+  outline: none !important;
+}
+
+.search-type-select option {
+  background-color: #1a1a1a;
+  color: white;
+  padding: 0.5rem;
+}
+
+.search-type-select option:hover {
+  background-color: #646cff;
 }

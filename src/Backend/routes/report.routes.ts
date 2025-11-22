@@ -1,22 +1,11 @@
 import { Router } from 'express';
 import { ReportController } from '../controllers/report.controllers';
-import { ReportService } from '../services/report.services';
-import { LoanService } from '../services/loan.services';
-import { UserService } from '../services/user.services';
-import { BookService } from '../services/book.services';
+import { reportServiceInstance } from '../services/instances';
 
 const router = Router();
 
-// Crear instancias de los servicios necesarios
-const loanService = new LoanService(null as any, null as any, null as any); // Ajusta los parámetros según tu implementación
-const userService = new UserService();
-const bookService = new BookService();
-
-// Crear instancia del servicio de reportes
-const reportService = new ReportService(loanService, userService, bookService);
-
-// Crear instancia del controlador
-const reportController = new ReportController(reportService);
+// Crear instancia del controlador usando el singleton
+const reportController = new ReportController(reportServiceInstance);
 
 // Definir rutas
 router.get('/loans/active', (req, res) => reportController.getActiveLoansReport(req, res));

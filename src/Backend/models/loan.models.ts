@@ -9,7 +9,8 @@ export enum LoanStatus {
 export interface CreateLoanDTO {
     userId: string;
     bookId: string;
-    dueDate?: Date; // Opcional para permitir fechas por defecto
+    loanDate?: Date | string; // Fecha cuando se realizó el préstamo
+    dueDate?: Date | string; // Puede ser Date o string ISO
 }
 
 // Modelo principal de préstamo

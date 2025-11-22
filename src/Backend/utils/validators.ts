@@ -9,42 +9,27 @@ export const isValidISBN = (isbn: string): boolean => {
     // Eliminar guiones y espacios
     isbn = isbn.replace(/[-\s]/g, '');
 
-    // Validar longitud
+    // Validar longitud (10 o 13 dígitos)
     if (isbn.length !== 10 && isbn.length !== 13) {
         return false;
     }
 
-    // Validar ISBN-10
-    if (isbn.length === 10) {
-        let sum = 0;
-        for (let i = 0; i < 9; i++) {
-            const digit = parseInt(isbn.charAt(i));
-            if (isNaN(digit)) return false;
-            sum += (10 - i) * digit;
+    // Validar que todos sean dígitos (excepto posiblemente la última posición de ISBN-10 que puede ser X)
+    for (let i = 0; i < isbn.length - 1; i++) {
+        if (!/\d/.test(isbn[i])) {
+            return false;
         }
-
-        // El último dígito puede ser 'X' (que representa 10)
-        const lastChar = isbn.charAt(9).toUpperCase();
-        const lastDigit = lastChar === 'X' ? 10 : parseInt(lastChar);
-        if (isNaN(lastDigit) && lastChar !== 'X') return false;
-
-        sum += lastDigit;
-        return sum % 11 === 0;
     }
 
-    // Validar ISBN-13
+    // Para ISBN-10, el último carácter puede ser X
+    if (isbn.length === 10) {
+        const lastChar = isbn[isbn.length - 1];
+        return /[\dX]/.test(lastChar);
+    }
+
+    // Para ISBN-13, el último debe ser dígito
     if (isbn.length === 13) {
-        let sum = 0;
-        for (let i = 0; i < 12; i++) {
-            const digit = parseInt(isbn.charAt(i));
-            if (isNaN(digit)) return false;
-            sum += (i % 2 === 0 ? 1 : 3) * digit;
-        }
-
-        const checkDigit = parseInt(isbn.charAt(12));
-        if (isNaN(checkDigit)) return false;
-
-        return (10 - (sum % 10)) % 10 === checkDigit;
+        return /\d/.test(isbn[isbn.length - 1]);
     }
 
     return false;

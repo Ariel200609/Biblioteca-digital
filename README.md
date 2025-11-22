@@ -56,26 +56,22 @@ El sistema permitirá:
 
 ### 📋 Pasos de instalación
 
-#### 1. Clonar el repositorio:
+#### 1. Clonar el repositorio
 ```bash
 git clone https://github.com/Ariel200609/Biblioteca-digital.git
 cd Biblioteca-digital
 ```
 
-#### 2. Instalar dependencias:
+#### 2. Instalar dependencias
 ```bash
 npm install
 ```
 
-#### 3. ⚠️ **Configurar la Base de Datos (MUY IMPORTANTE)**
+#### 3. ⚠️ Configurar la Base de Datos
 
-**3.1. Crear archivo `.env` en la raíz del proyecto:**
-```bash
-cp .env.example .env  # Si existe
-# O crear manualmente con el siguiente contenido:
-```
+**A. Crear archivo `.env` (copiar desde `.env.example` o crear manualmente):**
 
-**3.2. Editar `.env` con tus credenciales de MySQL:**
+En la raíz del proyecto, crea un archivo llamado `.env` con:
 ```env
 DB_HOST=localhost
 DB_PORT=3306
@@ -86,109 +82,179 @@ NODE_ENV=development
 PORT=3000
 ```
 
-**3.3. Inicializar la base de datos:**
+> **Nota:** Si cambiaste la contraseña de MySQL, reemplaza `1234` con tu contraseña real
+
+**B. Inicializar la base de datos (elige una opción):**
+
 ```bash
-# Opción 1: Crear la BD y las tablas automáticamente
+# Opción 1: Script automático (recomendado)
 npm run db:setup
 
-# Opción 2: Solo sincronizar las entidades (si la BD ya existe)
+# Opción 2: Si la BD ya existe
 npm run db:sync
 ```
 
-> ⚠️ **Nota:** El archivo `database.config.ts` tiene `synchronize: true`, lo que significa que TypeORM creará automáticamente las tablas. Asegúrate de que la BD `biblioteca_digital` existe en MySQL.
-
-#### 4. Iniciar en modo desarrollo:
+#### 4. Iniciar el servidor
 ```bash
 npm run dev
 ```
 
-El servidor estará disponible en `http://localhost:3000`
+Si todo está correcto, verás:
+```
+✅ Base de datos MySQL inicializada correctamente
+Servidor ejecutándose en http://localhost:3000
+```
 
-### Scripts disponibles
+### 📝 Scripts disponibles
 
-- `npm run dev`: Inicia el servidor en modo desarrollo con recarga automática
-- `npm run build`: Compila el proyecto para producción
-- `npm run build:watch`: Compila el proyecto en modo watch
-- `npm start`: Inicia el servidor en modo producción
-- `npm test`: Ejecuta las pruebas con interfaz visual
-- `npm run db:setup`: Crea la base de datos e inicializa las tablas
-- `npm run db:sync`: Sincroniza las entidades con la base de datos
-- `npm run migration:generate`: Genera una migración basada en cambios de entidades
-- `npm run migration:run`: Ejecuta las migraciones pendientes
-- `npm run migration:revert`: Revierte la última migración
+| Script | Descripción |
+|--------|------------|
+| `npm run build` | Compila TypeScript para producción |
+| `npm run build:watch` | Compila en modo watch |
+| `npm start` | Inicia servidor en producción |
+| `npm test` | Ejecuta pruebas unitarias |
+| `npm run test:ui` | Ejecuta tests con interfaz visual |
+| `npm run db:setup` | Crea BD e inicializa tablas |
+| `npm run db:sync` | Sincroniza entidades con BD |
+| `npm run db:test` | 🧪 Prueba la conexión a BD |
+| `npm run migration:generate` | Genera migración de cambios |
+| `npm run migration:run` | Ejecuta migraciones pendientes |
+| `npm run migration:revert` | Revierte última migración |
+
+---
+
+## 🧪 Pruebas
+
+El proyecto incluye pruebas completas:
+
+### Ejecutar pruebas
+```bash
+npm test
+```
+
+### Ver resultados con interfaz visual
+```bash
+npm run test:ui
+```
+
+### Tipos de pruebas
+
+- **Unitarias**: Pruebas de funciones y clases individuales
+- **Integración**: Pruebas de componentes trabajando juntos
+- **Patrón Factory**: Verificación del patrón de diseño Factory Method
+- **Controladores**: Tests de los controladores de rutas
+- **Servicios**: Tests de la lógica de negocio
+
+### Cobertura actual
+✅ 67+ tests pasando
+- Factory Method: 8 tests
+- Services: 7 tests  
+- Controllers: 16 tests
+- Integration: 27 tests
+- Reports: 3 tests
+- Otros: 6+ tests
+
+---
+
+## 🧪 Verificar que la BD está funcionando
+
+Después de configurar todo, puedes probar la conexión:
+
+```bash
+npm run db:test
+```
+
+Si todo está bien, verás:
+```
+✅ Conexión exitosa a la base de datos
+
+📈 Cantidad de registros:
+
+   ✓ users: 0 registros
+   ✓ books: 9 registros
+   ✓ loans: 0 registros
+   ✓ notifications: 0 registros
+
+✨ Prueba completada exitosamente
+```
+
+---
 
 ## 🔧 Troubleshooting
 
 ### ❌ Error: "connect ECONNREFUSED 127.0.0.1:3306"
-**Causa:** MySQL no está corriendo o las credenciales en `.env` son incorrectas.
+**Causa:** MySQL no está corriendo.
 
 **Solución:**
 1. Verifica que MySQL esté iniciado:
-   - **Windows:** Abre Services y busca "MySQL80" (o tu versión)
+   - **Windows:** Busca "MySQL80" en Services
    - **Linux/Mac:** Ejecuta `mysql -u root -p`
-2. Revisa las credenciales en `.env` (DB_HOST, DB_USER, DB_PASSWORD)
-3. Asegúrate de que la base de datos existe: `CREATE DATABASE biblioteca_digital;`
+2. Revisa credenciales en `.env` (DB_HOST, DB_USER, DB_PASSWORD)
+
+---
 
 ### ❌ Error: "ER_NO_DB_ERROR: No database selected"
 **Causa:** La base de datos no existe.
 
 **Solución:**
 ```bash
-# En MySQL:
-CREATE DATABASE biblioteca_digital CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-# O ejecuta:
 npm run db:setup
 ```
 
-### ❌ Error: "npm: command not found"
-**Causa:** Node.js o npm no está instalado.
+---
 
-**Solución:**
-1. Descarga Node.js desde https://nodejs.org/ (LTS recomendado)
-2. Verifica la instalación: `node --version` y `npm --version`
+### ❌ Error: "npm: command not found"
+**Causa:** Node.js no está instalado.
+
+**Solución:** Descarga Node.js desde https://nodejs.org/ (LTS recomendado)
+
+---
 
 ### ❌ Error: "Module not found"
-**Causa:** Las dependencias no están instaladas.
+**Causa:** Dependencias no instaladas.
 
 **Solución:**
 ```bash
 npm install
 ```
 
-## 📖 Documentación de la estructura del proyecto
+---
+
+### ❌ Error: ".env not found"
+**Solución:** Crea el archivo `.env` manualmente en la raíz del proyecto
+
+---
+
+## 📖 Estructura del proyecto
 
 ```
 Biblioteca-digital/
 ├── src/
 │   ├── Backend/
-│   │   ├── config/           # Configuración de BD y sincronización
-│   │   ├── controllers/      # Controladores de rutas
-│   │   ├── models/           # Modelos de datos (clases)
-│   │   ├── patterns/         # Patrones de diseño implementados
-│   │   ├── routes/           # Definición de rutas
-│   │   ├── services/         # Lógica de negocio
-│   │   ├── tests/            # Pruebas unitarias
-│   │   └── utils/            # Utilidades y validadores
+│   │   ├── config/          # Configuración de BD
+│   │   ├── controllers/     # Lógica de rutas
+│   │   ├── models/          # Clases de datos
+│   │   ├── patterns/        # Patrones de diseño
+│   │   ├── routes/          # Definición de rutas
+│   │   ├── services/        # Lógica de negocio
+│   │   ├── tests/           # Pruebas unitarias
+│   │   └── utils/           # Utilidades
 │   │
 │   ├── Database/
-│   │   ├── config/           # Configuración de TypeORM
-│   │   └── entities/         # Entidades de BD (User, Book, Loan, etc.)
+│   │   ├── config/          # Configuración TypeORM
+│   │   └── entities/        # Entidades (User, Book, Loan, etc.)
 │   │
 │   └── Frontend/
-│       ├── src/
-│       │   ├── pages/        # Componentes principales
-│       │   ├── CSS/          # Estilos
-│       │   └── api/          # Cliente para comunicarse con Backend
-│       └── vite.config.ts    # Configuración de Vite
+│       └── src/             # Componentes React
 │
-├── .env.example              # Plantilla de configuración
-├── .gitignore                # Archivos ignorados por Git
-├── package.json              # Dependencias y scripts
-├── tsconfig.json             # Configuración de TypeScript
-└── README.md                 # Este archivo
+├── .env.example             # Plantilla de variables
+├── package.json             # Dependencias
+└── README.md                # Este archivo
+```
 
-### Endpoints de Libros
+---
+
+## 📚 API Reference
 
 #### Obtener todos los libros
 ```http
