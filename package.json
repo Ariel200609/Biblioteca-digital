@@ -9,7 +9,12 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "start": "node ./dist/index.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    
+    "// COMENTARIO": "--- Scripts de Desarrollo ---",
+    "dev:backend": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev:frontend": "npm run dev --prefix src/Frontend",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    
     "clean": "rimraf dist",
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:generate": "npm run typeorm migration:generate -- -d src/Database/config/database.config.ts",
@@ -29,6 +34,7 @@
     "@types/node": "^24.9.2",
     "@types/supertest": "^6.0.3",
     "@vitest/ui": "^3.2.4",
+    "concurrently": "^9.2.1",
     "supertest": "^7.1.4",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.2",
