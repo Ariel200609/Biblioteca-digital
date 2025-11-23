@@ -1,18 +1,5 @@
+import { Book, CreateBookDTO } from '../models/book.models';
 import { isValidISBN } from '../utils/validators';
-
-interface Book {
-    id: string;
-    title: string;
-    author: string;
-    isbn: string;
-    category: string;
-    description: string;
-    available: boolean;
-    borrowCount: number;
-    timesLoaned: number;
-    createdAt: Date;
-    updatedAt: Date;
-}
 
 export class ValidatorError extends Error {
     constructor(message: string) {
@@ -22,7 +9,9 @@ export class ValidatorError extends Error {
 }
 
 export class BookService {
+    // Almacenamiento en memoria (Array), igual que users y loans
     private books: Book[] = [];
+    
     private readonly validCategories = [
         'Novela', 'Poesia', 'Teatro', 'Ensayo', 'Biografia', 
         'Historia', 'Filosofia', 'Psicologia', 'Ciencias', 
@@ -30,94 +19,92 @@ export class BookService {
         'Referencia', 'Educacion'
     ];
 
-    constructor() {}
+    constructor() {
+        // (Opcional) Datos de prueba iniciales para no tener que crear libros cada vez
+        this.seedInitialData();
+    }
+
+    private seedInitialData() {
+        this.books.push({
+            id: '1',
+            title: 'El Principito',
+            author: 'Antoine de Saint-Exupéry',
+            isbn: '9788498381498',
+            category: 'Novela',
+            description: 'Clásico de la literatura.',
+            available: true,
+            timesLoaned: 0,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        });
+    }
 
     async getAll(): Promise<Book[]> {
         return this.books;
     }
 
     async getById(id: string): Promise<Book | null> {
-        return this.books.find(b => b.id === id) || null;
+        return this.books.find(book => book.id === id) || null;
     }
 
-    async create(bookData: Omit<Book, 'id' | 'createdAt' | 'updatedAt' | 'available' | 'borrowCount'>): Promise<Book> {
-        // Validar ISBN
+    async create(bookData: CreateBookDTO): Promise<Book> {
+        // 1. Validaciones
         if (!isValidISBN(bookData.isbn)) {
             throw new ValidatorError('ISBN invalido');
         }
-
-        // Validar categoría
         if (!this.validCategories.includes(bookData.category)) {
             throw new ValidatorError('Categoria invalida');
         }
+        if (!bookData.title.trim()) throw new ValidatorError('El titulo es requerido');
+        if (!bookData.author.trim()) throw new ValidatorError('El autor es requerido');
 
-        // Validar datos requeridos
-        if (!bookData.title.trim()) {
-            throw new ValidatorError('El titulo es requerido');
-        }
-        if (!bookData.author.trim()) {
-            throw new ValidatorError('El autor es requerido');
-        }
-
-        const book: Book = {
-            id: Math.random().toString(36).substring(7),
+        // 2. Crear libro
+        const newBook: Book = {
+            id: Date.now().toString(), // ID simple basado en tiempo
             title: bookData.title.trim(),
             author: bookData.author.trim(),
             isbn: bookData.isbn,
             category: bookData.category,
-            description: bookData.description,
+            description: bookData.description || '',
             available: true,
-            borrowCount: 0,
-            timesLoaned: bookData.timesLoaned || 0,
+            timesLoaned: 0,
             createdAt: new Date(),
             updatedAt: new Date()
         };
 
-        this.books.push(book);
-        return book;
+        this.books.push(newBook);
+        return newBook;
     }
 
     async update(id: string, bookData: Partial<Book>): Promise<Book | null> {
-        const currentBook = this.books.find(b => b.id === id);
-        if (!currentBook) return null;
-        // Bloquear actualización de ISBN
-        if (bookData.isbn && bookData.isbn !== currentBook.isbn) {
-            throw new ValidatorError('No se puede cambiar el ISBN de un libro');
-        }
+        const index = this.books.findIndex(b => b.id === id);
+        if (index === -1) return null;
 
-        // Bloquear actualización de ID
-        if (bookData.id && bookData.id !== currentBook.id) {
-            throw new ValidatorError('No se puede cambiar el ID de un libro');
-        }
+        const currentBook = this.books[index];
 
-        // Validar categoría si se está actualizando
+        // Validaciones solo si vienen los campos
+        if (bookData.isbn && !isValidISBN(bookData.isbn)) {
+            throw new ValidatorError('ISBN invalido');
+        }
         if (bookData.category && !this.validCategories.includes(bookData.category)) {
             throw new ValidatorError('Categoria invalida');
         }
 
-        // Validar título si se está actualizando
-        if (bookData.title && !bookData.title.trim()) {
-            throw new ValidatorError('El titulo es requerido');
-        }
+        // Actualizar
+        const updatedBook = {
+            ...currentBook,
+            ...bookData,
+            updatedAt: new Date()
+        };
 
-        // Validar autor si se está actualizando
-        if (bookData.author && !bookData.author.trim()) {
-            throw new ValidatorError('El autor es requerido');
-        }
-
-        // Actualizar campos
-        if (bookData.title) currentBook.title = bookData.title.trim();
-        if (bookData.author) currentBook.author = bookData.author.trim();
-        if (bookData.category) currentBook.category = bookData.category;
-        if (bookData.available !== undefined) currentBook.available = bookData.available;
-        currentBook.updatedAt = new Date();
-
-        return currentBook;
+        this.books[index] = updatedBook;
+        return updatedBook;
     }
 
     async delete(id: string): Promise<boolean> {
         const index = this.books.findIndex(b => b.id === id);
         if (index === -1) return false;
+
         this.books.splice(index, 1);
         return true;
     }

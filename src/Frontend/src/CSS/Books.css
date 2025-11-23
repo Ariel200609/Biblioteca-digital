@@ -14,25 +14,31 @@
   gap: 1rem;
 }
 
+/* Contenedor principal de la barra de búsqueda */
 .search-bar-container {
-  position: relative;
-  flex: 1;
-  max-width: 500px;
   display: flex;
-  gap: 0.5rem;
-  align-items: center;
+  gap: 0.5rem; /* Espacio entre el input y el select */
+  flex: 1;
+  max-width: 500px; /* Un poco más ancho para que quepan ambos */
 }
 
+/* Envoltorio relativo para el input y el icono */
+.search-wrapper {
+  position: relative;
+  flex: 1; /* Hace que el input ocupe todo el espacio disponible */
+}
+
+/* Estilo del Input de Texto */
 .search-input {
   width: 100%;
-  flex: 1;
-  padding: 0.8rem 1rem 0.8rem 2.5rem;
+  padding: 0.8rem 1rem 0.8rem 2.5rem; /* Padding izquierdo para el icono */
   border-radius: 12px;
   border: 1px solid #444;
   background: #1a1a1a;
   color: white;
   font-size: 1rem;
   transition: border-color 0.3s, box-shadow 0.3s;
+  box-sizing: border-box; /* Importante para que el padding no rompa el ancho */
 }
 
 .search-input:focus {
@@ -41,27 +47,33 @@
   outline: none;
 }
 
+/* Icono de la lupa */
 .search-icon {
   position: absolute;
-  left: 10px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
   color: #666;
   pointer-events: none;
 }
 
-.add-btn {
-  background-color: #646cff;
+
+.search-select {
+  width: 140px; 
+  padding: 0.8rem;
+  border-radius: 12px;
+  border: 1px solid #444;
+  background: #1a1a1a;
   color: white;
-  border: none;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
 }
 
-.add-btn:hover {
-  background-color: #535bf2;
+.search-select:focus {
+  border-color: #646cff;
+  outline: none;
 }
 
 /* Grid de Libros */

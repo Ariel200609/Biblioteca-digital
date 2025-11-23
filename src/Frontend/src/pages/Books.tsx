@@ -7,7 +7,9 @@ import '../CSS/Books.css';
 export default function Books() {
   const [books, setBooks] = useState<Book[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  // Añadimos estado para el tipo de búsqueda que tenías en tu código
   const [searchType, setSearchType] = useState<'title' | 'author' | 'category' | 'popularity'>('title');
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -21,7 +23,7 @@ export default function Books() {
     try {
       let endpoint = '/books';
       if (query) {
-        // Usamos el endpoint de búsqueda del backend con tipo
+        // Usamos el endpoint de búsqueda del backend con los parámetros correctos
         endpoint = `/books/search?query=${encodeURIComponent(query)}&type=${encodeURIComponent(type)}`;
       }
       const data = await apiGet<Book[]>(endpoint);
@@ -34,7 +36,7 @@ export default function Books() {
   }
 
   useEffect(() => {
-    // Debounce para la búsqueda
+    // Debounce para la búsqueda para no saturar la API
     const timeoutId = setTimeout(() => {
       loadBooks(searchQuery, searchType);
     }, 300);
@@ -61,9 +63,11 @@ export default function Books() {
         await apiPost<Book>('/books', form);
       }
       setIsModalOpen(false);
+      // Recargamos usando los filtros actuales
       loadBooks(searchQuery, searchType);
     } catch (error) {
-      alert('Error al guardar el libro');
+      // Mensaje de error más descriptivo para el usuario
+      alert('Error al guardar: Verifica que el ISBN sea válido (10 o 13 dígitos) y la categoría sea correcta.');
     }
   }
 
@@ -78,17 +82,22 @@ export default function Books() {
       <div className="books-header">
         <h2>Catálogo de Libros</h2>
         
-        <div className="search-bar-container">
-          <span className="search-icon">🔍</span>
-          <input 
-            type="text" 
-            className="search-input" 
-            placeholder="Buscar por título, autor..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        <div className="search-bar-container" style={{display: 'flex', gap: '10px'}}>
+          <div style={{position: 'relative', flex: 1}}>
+            <span className="search-icon">🔍</span>
+            <input 
+              type="text" 
+              className="search-input" 
+              placeholder="Buscar..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
+          {/* Selector de Tipo de Búsqueda añadido para coincidir con tu lógica */}
           <select 
-            className="search-type-select"
+            className="search-input" // Reutilizamos estilo
+            style={{width: '120px', paddingLeft: '1rem'}}
             value={searchType}
             onChange={(e) => setSearchType(e.target.value as any)}
           >
@@ -105,15 +114,17 @@ export default function Books() {
       </div>
 
       {loading ? (
-        <div style={{textAlign: 'center', color: '#666'}}>Cargando catálogo...</div>
+        <div style={{textAlign: 'center', color: '#666', padding: '2rem'}}>Cargando catálogo...</div>
       ) : (
         <div className="books-grid">
           {books.map((b) => (
             <div key={b.id} className="book-card">
               <div className="book-cover-placeholder">
                 <div className="book-category-badge">{b.category}</div>
-                {/* Icono de libro grande */}
-                <svg className="book-icon-large" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                <svg className="book-icon-large" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
               </div>
               
               <div className="book-info">
@@ -127,12 +138,8 @@ export default function Books() {
                   </div>
 
                   <div className="book-actions">
-                    <button className="icon-btn" onClick={() => openModal(b)} title="Editar">
-                      ✎
-                    </button>
-                    <button className="icon-btn delete" onClick={() => onDelete(b.id)} title="Eliminar">
-                      🗑️
-                    </button>
+                    <button className="icon-btn" onClick={() => openModal(b)} title="Editar">✎</button>
+                    <button className="icon-btn delete" onClick={() => onDelete(b.id)} title="Eliminar">🗑️</button>
                   </div>
                 </div>
               </div>
@@ -141,7 +148,6 @@ export default function Books() {
         </div>
       )}
 
-      {/* Modal para Crear/Editar */}
       <Modal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
@@ -158,7 +164,13 @@ export default function Books() {
           </div>
           <div className="form-group">
             <label>ISBN</label>
-            <input className="form-input" value={form.isbn} onChange={(e) => setForm({ ...form, isbn: e.target.value })} required />
+            <input 
+                className="form-input" 
+                value={form.isbn} 
+                onChange={(e) => setForm({ ...form, isbn: e.target.value })} 
+                required 
+                placeholder="Ej: 9788437604947"
+            />
           </div>
           <div className="form-group">
             <label>Categoría</label>
@@ -169,12 +181,23 @@ export default function Books() {
               required
             >
               <option value="">Seleccionar...</option>
+              {/* LISTA CORREGIDA PARA COINCIDIR CON EL BACKEND */}
               <option value="Novela">Novela</option>
-              <option value="Ciencia Ficción">Ciencia Ficción</option>
+              <option value="Poesia">Poesía</option>
+              <option value="Teatro">Teatro</option>
+              <option value="Ensayo">Ensayo</option>
+              <option value="Biografia">Biografía</option>
               <option value="Historia">Historia</option>
-              <option value="Tecnología">Tecnología</option>
+              <option value="Filosofia">Filosofía</option>
+              <option value="Psicologia">Psicología</option>
+              <option value="Ciencias">Ciencias</option>
+              <option value="Tecnologia">Tecnología</option> {/* Sin tilde en el value */}
+              <option value="Arte">Arte</option>
               <option value="Infantil">Infantil</option>
-              <option value="Otros">Otros</option>
+              <option value="Juvenil">Juvenil</option>
+              <option value="Comic">Cómic</option>
+              <option value="Referencia">Referencia</option>
+              <option value="Educacion">Educación</option> {/* Sin tilde en el value */}
             </select>
           </div>
           
