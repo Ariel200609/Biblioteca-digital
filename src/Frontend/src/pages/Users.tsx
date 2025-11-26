@@ -85,7 +85,9 @@ export default function Users() {
   }
 
   // Utilidad para obtener iniciales
-  const getInitials = (name: string) => {
+    const getInitials = (name: string) => {  
+    if (!name) return '??';
+    
     return name
       .split(' ')
       .map(n => n[0])

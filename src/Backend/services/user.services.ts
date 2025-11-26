@@ -1,73 +1,58 @@
-import { User } from '../models/user.models';
+import { User } from '../models/user.models'; // Importamos del modelo, NO de la entidad
+import { JsonDb } from '../data/jsonDb';
 import { UserFactoryCreator } from '../patterns/factory/userFactory';
 
-interface UserEntity {
-    id: string;
-    name: string;
-    email: string;
-    role: 'admin' | 'librarian' | 'reader';
-    isActive: boolean;
-    activeLoans: string[];
-    createdAt: Date;
-    updatedAt: Date;
-}
-
 export class UserService {
-    private users: UserEntity[] = [];
+    private db: JsonDb<User>;
 
-    async getAll(): Promise<UserEntity[]> {
-        return this.users;
+    constructor() {
+        this.db = new JsonDb<User>('users.json');
+        this.seedIfEmpty();
     }
 
-    async getById(id: string): Promise<UserEntity | null> {
-        return this.users.find(u => u.id === id) || null;
-    }
-
-    async create(userData: {
-        name: string;
-        email: string;
-        role: 'admin' | 'librarian' | 'reader';
-    }): Promise<UserEntity> {
-        // Validar que el email sea único
-        const existingUser = this.users.find(u => u.email === userData.email);
-        if (existingUser) {
-            throw new Error('Email already exists');
+    private async seedIfEmpty() {
+        const users = await this.db.getAll();
+        if (users.length === 0) {
+            console.log('🌱 Seeding Users JSON...');
+            // Usamos el Factory para crear usuarios iniciales con la estructura correcta
+            const adminFactory = UserFactoryCreator.getFactory('admin');
+            const readerFactory = UserFactoryCreator.getFactory('reader');
+            
+            const admin = adminFactory.createUser('1', 'Admin User', 'admin@test.com');
+            const reader = readerFactory.createUser('2', 'Lector Test', 'reader@test.com');
+            
+            await this.db.add(admin);
+            await this.db.add(reader);
         }
-
-        const user: UserEntity = {
-            id: Math.random().toString(36).substring(7),
-            name: userData.name,
-            email: userData.email,
-            role: userData.role,
-            isActive: true,
-            activeLoans: [],
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-
-        this.users.push(user);
-        return user;
     }
 
-    async update(id: string, userData: Partial<UserEntity>): Promise<UserEntity | null> {
-        const currentUser = this.users.find(u => u.id === id);
-        if (!currentUser) return null;
+    async getAll(): Promise<User[]> {
+        return this.db.getAll();
+    }
 
-        // Actualizar los campos permitidos
-        if (userData.name) currentUser.name = userData.name;
-        if (userData.email) currentUser.email = userData.email;
-        if (userData.role) currentUser.role = userData.role;
-        if (userData.isActive !== undefined) currentUser.isActive = userData.isActive;
-        if (userData.activeLoans !== undefined) currentUser.activeLoans = userData.activeLoans;
-        currentUser.updatedAt = new Date();
+    async getById(id: string): Promise<User | null> {
+        return (await this.db.getById(id)) || null;
+    }
 
-        return currentUser;
+    async create(userData: { name: string; email: string; role: 'admin' | 'librarian' | 'reader' }): Promise<User> {
+        const factory = UserFactoryCreator.getFactory(userData.role);
+        
+        // CORRECCIÓN: Agregamos 'await' aquí
+        const user = await factory.registerUser(
+            Date.now().toString(), 
+            userData.name, 
+            userData.email
+        );
+        
+        // Ahora 'user' es el objeto real (User) y no una promesa (Promise<User>)
+        return this.db.add(user);
+    }
+
+    async update(id: string, userData: Partial<User>): Promise<User | null> {
+        return this.db.update(id, userData);
     }
 
     async delete(id: string): Promise<boolean> {
-        const index = this.users.findIndex(u => u.id === id);
-        if (index === -1) return false;
-        this.users.splice(index, 1);
-        return true;
+        return this.db.delete(id);
     }
 }

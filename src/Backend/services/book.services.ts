@@ -1,5 +1,7 @@
-import { Book, CreateBookDTO } from '../models/book.models';
+
+import { Book, CreateBookDTO } from '../models/book.models'; 
 import { isValidISBN } from '../utils/validators';
+import { JsonDb } from '../data/jsonDb';
 
 export class ValidatorError extends Error {
     constructor(message: string) {
@@ -9,9 +11,7 @@ export class ValidatorError extends Error {
 }
 
 export class BookService {
-    // Almacenamiento en memoria (Array), igual que users y loans
-    private books: Book[] = [];
-    
+    private db: JsonDb<Book>;
     private readonly validCategories = [
         'Novela', 'Poesia', 'Teatro', 'Ensayo', 'Biografia', 
         'Historia', 'Filosofia', 'Psicologia', 'Ciencias', 
@@ -20,49 +20,48 @@ export class BookService {
     ];
 
     constructor() {
-        // (Opcional) Datos de prueba iniciales para no tener que crear libros cada vez
-        this.seedInitialData();
+        this.db = new JsonDb<Book>('books.json');
+        this.seedIfEmpty();
     }
 
-    private seedInitialData() {
-        this.books.push({
-            id: '1',
-            title: 'El Principito',
-            author: 'Antoine de Saint-Exupéry',
-            isbn: '9788498381498',
-            category: 'Novela',
-            description: 'Clásico de la literatura.',
-            available: true,
-            timesLoaned: 0,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        });
+    private async seedIfEmpty() {
+        const books = await this.db.getAll();
+        if (books.length === 0) {
+            console.log('🌱 Seeding Books JSON...');
+            // Usamos 'as Book' para asegurar que cumpla con la interfaz
+            await this.db.add({
+                id: '1',
+                title: 'El Principito',
+                author: 'Antoine de Saint-Exupéry',
+                isbn: '9788498381498',
+                category: 'Novela',
+                description: 'Clásico.',
+                available: true,
+                timesLoaned: 0,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            } as Book);
+        }
     }
 
     async getAll(): Promise<Book[]> {
-        return this.books;
+        return this.db.getAll();
     }
 
     async getById(id: string): Promise<Book | null> {
-        return this.books.find(book => book.id === id) || null;
+        return (await this.db.getById(id)) || null;
     }
 
     async create(bookData: CreateBookDTO): Promise<Book> {
-        // 1. Validaciones
-        if (!isValidISBN(bookData.isbn)) {
-            throw new ValidatorError('ISBN invalido');
-        }
-        if (!this.validCategories.includes(bookData.category)) {
-            throw new ValidatorError('Categoria invalida');
-        }
+        if (!isValidISBN(bookData.isbn)) throw new ValidatorError('ISBN invalido');
+        if (!this.validCategories.includes(bookData.category)) throw new ValidatorError('Categoria invalida');
         if (!bookData.title.trim()) throw new ValidatorError('El titulo es requerido');
-        if (!bookData.author.trim()) throw new ValidatorError('El autor es requerido');
-
-        // 2. Crear libro
+        
+        // Construimos el objeto cumpliendo la interfaz Book
         const newBook: Book = {
-            id: Date.now().toString(), // ID simple basado en tiempo
-            title: bookData.title.trim(),
-            author: bookData.author.trim(),
+            id: Date.now().toString(),
+            title: bookData.title,
+            author: bookData.author,
             isbn: bookData.isbn,
             category: bookData.category,
             description: bookData.description || '',
@@ -72,40 +71,14 @@ export class BookService {
             updatedAt: new Date()
         };
 
-        this.books.push(newBook);
-        return newBook;
+        return this.db.add(newBook);
     }
 
     async update(id: string, bookData: Partial<Book>): Promise<Book | null> {
-        const index = this.books.findIndex(b => b.id === id);
-        if (index === -1) return null;
-
-        const currentBook = this.books[index];
-
-        // Validaciones solo si vienen los campos
-        if (bookData.isbn && !isValidISBN(bookData.isbn)) {
-            throw new ValidatorError('ISBN invalido');
-        }
-        if (bookData.category && !this.validCategories.includes(bookData.category)) {
-            throw new ValidatorError('Categoria invalida');
-        }
-
-        // Actualizar
-        const updatedBook = {
-            ...currentBook,
-            ...bookData,
-            updatedAt: new Date()
-        };
-
-        this.books[index] = updatedBook;
-        return updatedBook;
+        return this.db.update(id, { ...bookData, updatedAt: new Date() });
     }
 
     async delete(id: string): Promise<boolean> {
-        const index = this.books.findIndex(b => b.id === id);
-        if (index === -1) return false;
-
-        this.books.splice(index, 1);
-        return true;
+        return this.db.delete(id);
     }
 }

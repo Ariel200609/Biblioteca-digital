@@ -1,0 +1,21 @@
+[
+  {
+    "id": "1",
+    "name": "Admin User",
+    "email": "admin@test.com",
+    "role": "admin",
+    "createdAt": "2025-11-26T00:30:03.250Z",
+    "activeLoans": 0,
+    "isActive": true
+  },
+  {
+    "id": "2",
+    "name": "Lector Test",
+    "email": "reader@test.com",
+    "role": "reader",
+    "createdAt": "2025-11-26T00:30:03.250Z",
+    "activeLoans": 0,
+    "isActive": true,
+    "MAX_LOANS": 3
+  }
+]
