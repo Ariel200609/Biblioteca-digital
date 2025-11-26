@@ -1,5 +1,10 @@
 # 📚 Biblioteca Digital  
-
+---
+> ⚠️ **Nota Importante (Rama `dev-sin-DB`):**
+> Esta versión del proyecto funciona con un **Sistema de Archivos JSON (Mock DB)**.
+> **No es necesario instalar ni configurar una base de datos (MySQL/SQLite).**
+> El sistema ya incluye **datos precargados** (libros, usuarios y préstamos) listos para probar al iniciar.
+---
 ## 🧩 Introducción  
 **Biblioteca Digital** es una plataforma para la **gestión integral de libros y préstamos**.  
 Permite a los usuarios **registrarse, buscar libros, solicitar préstamos y recibir notificaciones** sobre devoluciones o novedades.  
