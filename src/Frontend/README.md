@@ -3,6 +3,11 @@
 Interfaz web construida con React y Vite para gestionar la biblioteca digital. Consume la API REST del backend (`/api`) para administrar libros, usuarios, préstamos, notificaciones y reportes.
 
 ---
+> ⚠️ **Nota Importante (Rama `dev-sin-DB`):**
+> Esta versión del proyecto funciona con un **Sistema de Archivos JSON (Mock DB)**.
+> **No es necesario instalar ni configurar una base de datos (MySQL/SQLite).**
+> El sistema ya incluye **datos precargados** (libros, usuarios y préstamos) listos para probar al iniciar.
+---
 
 ## 🚀 Tecnologías principales
 
