@@ -6,31 +6,36 @@
 > El sistema ya incluye **datos precargados** (libros, usuarios y préstamos) listos para probar al iniciar.
 ---
 
-## 🚀 Inicio Rápido con Docker (Recomendado)
+## ⚡ Inicio Rápido
 
-**La forma más fácil de ejecutar el proyecto es con Docker:**
+### 🐳 Con Docker (Recomendado)
 
-### Windows (PowerShell)
-```powershell
-.\init-docker.ps1
-```
-
-### Windows (CMD)
-```cmd
-start-docker.bat
-```
-
-### Linux/Mac
 ```bash
-bash init-docker.sh
+git clone https://github.com/Ariel200609/Biblioteca-digital.git
+cd Biblioteca-digital
+cp .env.example .env
+docker-compose up -d
 ```
 
-Esto levantará automáticamente:
+### 💻 Sin Docker (Desarrollo local)
+
+```bash
+git clone https://github.com/Ariel200609/Biblioteca-digital.git
+cd Biblioteca-digital
+
+# Terminal 1
+npm install && npm run dev:backend
+
+# Terminal 2
+cd src/Frontend && npm install && npm run dev
+```
+
+**Acceso:**
 - 🎨 **Frontend**: http://localhost:5173
 - 🔌 **Backend API**: http://localhost:3000
-- 💾 **MySQL**: localhost:3307 (usuario: `biblioteca`, contraseña: `biblioteca123`)
 
-> Para más detalles, ver [DOCKER.md](./DOCKER.md)
+> 📖 **Para instrucciones detalladas**, ver [SETUP.md](./SETUP.md) ← **LEER ESTO PRIMERO**
+> 🐳 **Para más detalles sobre Docker**, ver [DOCKER.md](./DOCKER.md)
 
 ---
 ## 🧩 Introducción  
@@ -88,54 +93,40 @@ El sistema permitirá:
 
 ## 🛠️ Instalación y Uso
 
-### ⚙️ Requisitos previos
-- **Node.js** v16 o superior
-- **npm** v7 o superior
+> 📖 **IMPORTANTE:** Para instrucciones paso a paso detalladas, ver [SETUP.md](./SETUP.md)
+> Incluye troubleshooting y solución de problemas comunes.
 
-### 📋 Pasos de instalación
+### ⚙️ Requisitos mínimos
 
-#### 1. Clonar el repositorio
+**Opción 1: Docker (Recomendado)**
+- Docker Desktop v4.0+
+- 2GB RAM disponibles
+
+**Opción 2: Desarrollo local**
+- Node.js v20+
+- npm v10+
+- 500MB espacio disco
+
+### 🚀 Instalación rápida
+
+**Clonar o descargar el proyecto:**
 ```bash
 git clone https://github.com/Ariel200609/Biblioteca-digital.git
 cd Biblioteca-digital
 ```
 
-#### 2. Instalar dependencias
+**Con Docker (Una línea):**
 ```bash
-npm install
+docker-compose up -d
 ```
 
-#### 3. Iniciar el servidor y frontend
-
-El proyecto está dividido en dos carpetas principales: **Backend** y **Frontend**.
-
-**Opción A: Iniciar ambos simultáneamente (recomendado)**
-
+**Sin Docker:**
 ```bash
-npm run dev
+npm install && npm run dev
 ```
 
-Esto iniciará:
-- 🖥️ Backend en `http://localhost:3000`
-- 🌐 Frontend en `http://localhost:5173`
-
-**Opción B: Iniciar por separado**
-
-Terminal 1 - Backend:
-```bash
-npm run dev:backend
-```
-
-Terminal 2 - Frontend:
-```bash
-npm run dev:frontend
-```
-
-Si todo está correcto, verás:
-```
-✅ Servidor Backend ejecutándose en http://localhost:3000
-✅ Aplicación Frontend ejecutándose en http://localhost:5173
-```
+> Para instrucciones completas con troubleshooting, ver [SETUP.md](./SETUP.md)
+````
 
 > **Nota:** El sistema usa almacenamiento en memoria (in-memory). Los datos se generan automáticamente al iniciar la aplicación y persisten mientras el servidor está activo.
 
