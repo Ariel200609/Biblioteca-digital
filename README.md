@@ -12,7 +12,7 @@ docker-compose up -d
 ### 💻 Sin Docker (Desarrollo local)
 
 ```bash
-git clone https://github.com/Ariel200609/Biblioteca-digital.git
+git clone --branch dev-sin-DB https://github.com/Ariel200609/Biblioteca-digital.git
 cd Biblioteca-digital
 
 # Terminal 1
