@@ -1,16 +1,11 @@
 import { Router } from 'express';
 import { NotificationController } from '../controllers/notification.controllers';
-import { NotificationSystem } from '../patterns/observer/notificationSystem';
-import { SystemNotificationObserver } from '../patterns/observer/notificationObservers';
+import { notificationSystemInstance, systemNotificationObserverInstance } from '../services/instances';
 
 const router = Router();
 
-// Crear instancias necesarias
-const notificationSystem = new NotificationSystem();
-const systemObserver = new SystemNotificationObserver();
-notificationSystem.attach(systemObserver);
-
-const notificationController = new NotificationController(notificationSystem, systemObserver);
+// Usar instancias singleton del sistema de notificaciones y observer
+const notificationController = new NotificationController(notificationSystemInstance, systemNotificationObserverInstance);
 
 // Rutas de notificaciones
 router.get('/user/:userId', (req, res) => notificationController.getUserNotifications(req, res));

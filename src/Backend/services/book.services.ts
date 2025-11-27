@@ -1,7 +1,7 @@
-import { Book } from '../../Database/entities/Book.entity';
+
+import { Book, CreateBookDTO } from '../models/book.models'; 
 import { isValidISBN } from '../utils/validators';
-import { AppDataSource } from '../../Database/config/database.config';
-import { Repository } from 'typeorm';
+import { JsonDb } from '../data/jsonDb';
 
 export class ValidatorError extends Error {
     constructor(message: string) {
@@ -11,7 +11,7 @@ export class ValidatorError extends Error {
 }
 
 export class BookService {
-    private bookRepository: Repository<Book>;
+    private db: JsonDb<Book>;
     private readonly validCategories = [
         'Novela', 'Poesia', 'Teatro', 'Ensayo', 'Biografia', 
         'Historia', 'Filosofia', 'Psicologia', 'Ciencias', 
@@ -20,80 +20,78 @@ export class BookService {
     ];
 
     constructor() {
-        this.bookRepository = AppDataSource.getRepository(Book);
+        this.db = new JsonDb<Book>('books.json');
+        this.seedIfEmpty();
+    }
+
+    private async seedIfEmpty() {
+        const books = await this.db.getAll();
+        if (books.length === 0) {
+            await this.db.add({
+                id: '1',
+                title: 'El Principito',
+                author: 'Antoine de Saint-Exupéry',
+                isbn: '9788498381498',
+                category: 'Novela',
+                description: 'Clásico.',
+                available: true,
+                timesLoaned: 0,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            } as Book);
+        }
     }
 
     async getAll(): Promise<Book[]> {
-        return this.bookRepository.find();
+        return this.db.getAll();
     }
 
     async getById(id: string): Promise<Book | null> {
-        return this.bookRepository.findOneBy({ id });
+        return (await this.db.getById(id)) || null;
     }
 
-    async create(bookData: Omit<Book, 'id' | 'createdAt' | 'updatedAt' | 'available' | 'borrowCount'>): Promise<Book> {
-        // Validar ISBN
-        if (!isValidISBN(bookData.isbn)) {
-            throw new ValidatorError('ISBN invalido');
-        }
+    async create(bookData: CreateBookDTO): Promise<Book> {
+        if (!isValidISBN(bookData.isbn)) throw new ValidatorError('ISBN invalido');
+        if (!this.validCategories.includes(bookData.category)) throw new ValidatorError('Categoria invalida');
+        if (!bookData.title.trim()) throw new ValidatorError('El titulo es requerido');
+        
+        // Construimos el objeto cumpliendo la interfaz Book
+        const newBook: Book = {
+            id: Date.now().toString(),
+            title: bookData.title,
+            author: bookData.author,
+            isbn: bookData.isbn,
+            category: bookData.category,
+            description: bookData.description || '',
+            available: true,
+            timesLoaned: 0,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
 
-        // Validar categoría
-        if (!this.validCategories.includes(bookData.category)) {
-            throw new ValidatorError('Categoria invalida');
-        }
-
-        // Validar datos requeridos
-        if (!bookData.title.trim()) {
-            throw new ValidatorError('El titulo es requerido');
-        }
-        if (!bookData.author.trim()) {
-            throw new ValidatorError('El autor es requerido');
-        }
-
-        const book = new Book();
-        book.title = bookData.title.trim();
-        book.author = bookData.author.trim();
-        book.isbn = bookData.isbn;
-        book.category = bookData.category;
-
-        return this.bookRepository.save(book);
+        return this.db.add(newBook);
     }
 
     async update(id: string, bookData: Partial<Book>): Promise<Book | null> {
-        const currentBook = await this.bookRepository.findOneBy({ id });
-        if (!currentBook) return null;
-        
-        // Validar ISBN si se está actualizando
-        if (bookData.isbn && !isValidISBN(bookData.isbn)) {
-            throw new ValidatorError('ISBN invalido');
+        // Validar que no intenten cambiar el ISBN
+        if (bookData.isbn !== undefined) {
+            throw new ValidatorError('No se puede modificar el ISBN de un libro una vez creado');
         }
 
-        // Validar categoría si se está actualizando
+        // Validar categoría si se intenta cambiar
         if (bookData.category && !this.validCategories.includes(bookData.category)) {
-            throw new ValidatorError('Categoria invalida');
+            throw new ValidatorError(`Categoría inválida. Categorías válidas: ${this.validCategories.join(', ')}`);
         }
 
-        // Validar título si se está actualizando
-        if (bookData.title && !bookData.title.trim()) {
-            throw new ValidatorError('El titulo es requerido');
+        // Validar título si se intenta cambiar
+        if (bookData.title !== undefined && !bookData.title.trim()) {
+            throw new ValidatorError('El título no puede estar vacío');
         }
 
-        // Validar autor si se está actualizando
-        if (bookData.author && !bookData.author.trim()) {
-            throw new ValidatorError('El autor es requerido');
-        }
-
-        const updatedBook = this.bookRepository.merge(currentBook, {
-            ...bookData,
-            title: bookData.title?.trim() || currentBook.title,
-            author: bookData.author?.trim() || currentBook.author
-        });
-        
-        return this.bookRepository.save(updatedBook);
+        return this.db.update(id, { ...bookData, updatedAt: new Date() });
     }
 
     async delete(id: string): Promise<boolean> {
-        const result = await this.bookRepository.delete(id);
-        return result.affected ? result.affected > 0 : false;
+        return this.db.delete(id);
     }
 }

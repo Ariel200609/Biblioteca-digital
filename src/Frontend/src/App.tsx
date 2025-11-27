@@ -26,19 +26,19 @@ function App() {
           filter: showWelcome ? 'blur(5px)' : 'blur(0)',
           minHeight: '100vh',
           backgroundColor: '#1a1a1a',
-          display: 'flex',        // Flex para organizar navbar y contenido
-          flexDirection: 'column' // Columna vertical
+          display: 'flex',
+          flexDirection: 'column'
         }}
       >
         <Navbar />
 
         {/* Main Container */}
         <main style={{ 
-          flex: 1,                // Ocupar todo el espacio restante
-          paddingTop: '70px',     // Compensar la navbar fija
-          width: '100%',          // Forzar ancho completo
+          flex: 1,
+          paddingTop: '70px',
+          width: '100%',
           boxSizing: 'border-box',
-          display: 'flex',        // Flex para centrar hijos si es necesario
+          display: 'flex',
           justifyContent: 'center'
         }}>
           {/* Contenedor interno con ancho máximo controlado pero ancho base 100% */}

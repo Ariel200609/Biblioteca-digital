@@ -5,3 +5,17 @@ dist/
 # Environment
 .env
 .env.local
+
+# Docker
+.dockerignore
+__pycache__
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

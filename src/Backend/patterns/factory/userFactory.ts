@@ -1,9 +1,10 @@
 import { User } from '../../models/user.models';
+import { validateEmail } from '../../utils/validators';
 
 // Clases especificas para cada tipo de usuario
 export class Administrator extends User {
     constructor(id: string, name: string, email: string) {
-        super(id, name, email, 'ADMIN');
+        super(id, name, email, 'admin');
     }
 
     // Metodos especificos de administrador
@@ -22,7 +23,7 @@ export class Administrator extends User {
 
 export class Librarian extends User {
     constructor(id: string, name: string, email: string) {
-        super(id, name, email, 'LIBRARIAN');
+        super(id, name, email, 'librarian');
     }
 
     // Metodos especificos de bibliotecario
@@ -40,11 +41,10 @@ export class Librarian extends User {
 }
 
 export class Reader extends User {
-    private activeLoans: number = 0;
     private readonly MAX_LOANS: number = 3;
 
     constructor(id: string, name: string, email: string) {
-        super(id, name, email, 'READER');
+        super(id, name, email, 'reader');
     }
 
     // Metodos especificos de lector
@@ -76,21 +76,25 @@ export abstract class UserFactory {
     abstract createUser(id: string, name: string, email: string): User;
 
     // Metodo template para registro de usuario
-    registerUser(id: string, name: string, email: string): User {
+    async registerUser(id: string, name: string, email: string): Promise<User> {
+        this.validateUserData(id, name, email);
         const user = this.createUser(id, name, email);
-        this.saveUser(user);
-        this.notifyUserCreation(user);
+        await this.notifyUserCreation(user);
         return user;
     }
 
-    protected saveUser(user: User): void {
-        console.log(`Usuario ${user.name} guardado en la base de datos`);
-        // Aqui iria la lógica de persistencia
+    private validateUserData(id: string, name: string, email: string): void {
+        if (!id || !name || !email) {
+            throw new Error('ID, nombre y email son requeridos');
+        }
+        if (!validateEmail(email)) {
+            throw new Error('Email no válido');
+        }
     }
 
-    protected notifyUserCreation(user: User): void {
-        console.log(`Nuevo usuario ${user.role} creado: ${user.name}`);
-        // Aqui iria la lógica de notificación
+    protected async notifyUserCreation(user: User): Promise<void> {
+        console.log(`Nuevo usuario ${user.role} creado: ${user.name} (${user.email})`);
+        // Aqui iria la lógica de notificación (envío de emails, etc.)
     }
 }
 
@@ -115,13 +119,13 @@ export class ReaderFactory extends UserFactory {
 
 // Creator of factories
 export class UserFactoryCreator {
-    static getFactory(role: 'ADMIN' | 'LIBRARIAN' | 'READER'): UserFactory {
+    static getFactory(role: 'admin' | 'librarian' | 'reader'): UserFactory {
         switch (role) {
-            case 'ADMIN':
+            case 'admin':
                 return new AdministratorFactory();
-            case 'LIBRARIAN':
+            case 'librarian':
                 return new LibrarianFactory();
-            case 'READER':
+            case 'reader':
                 return new ReaderFactory();
             default:
                 throw new Error('Rol de usuario no válido');

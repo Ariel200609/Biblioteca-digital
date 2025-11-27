@@ -4,21 +4,25 @@ import { ReportService } from '../services/report.services';
 import { LoanService } from '../services/loan.services';
 import { UserService } from '../services/user.services';
 import { BookService } from '../services/book.services';
+import { NotificationSystem } from '../patterns/observer/notificationSystem';
 
 const router = Router();
 
-// Crear instancias de los servicios necesarios
-const loanService = new LoanService(null as any, null as any, null as any); // Ajusta los parámetros según tu implementación
-const userService = new UserService();
+// 1. Instanciar dependencias reales (No usar null)
+const notificationSystem = new NotificationSystem();
 const bookService = new BookService();
+const userService = new UserService();
 
-// Crear instancia del servicio de reportes
+// 2. Crear LoanService inyectando las dependencias
+const loanService = new LoanService(notificationSystem, bookService, userService);
+
+// 3. Crear ReportService con todo conectado
 const reportService = new ReportService(loanService, userService, bookService);
 
-// Crear instancia del controlador
+// 4. Controlador
 const reportController = new ReportController(reportService);
 
-// Definir rutas
+// Rutas
 router.get('/loans/active', (req, res) => reportController.getActiveLoansReport(req, res));
 router.get('/users/active', (req, res) => reportController.getActiveUsersReport(req, res));
 router.get('/books/statistics', (req, res) => reportController.getBookStatisticsReport(req, res));

@@ -21,7 +21,6 @@ export default function Reports() {
         setActiveUsers(au);
         setBookStats(bs);
       } catch (e) {
-        console.error(e);
       } finally {
         setLoading(false);
       }

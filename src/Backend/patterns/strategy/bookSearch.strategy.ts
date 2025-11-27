@@ -1,4 +1,17 @@
-import { Book } from '../../../Database/entities/Book.entity';
+// Book interface definition
+interface Book {
+    id: string;
+    title: string;
+    author: string;
+    isbn: string;
+    category: string;
+    description: string;
+    available: boolean;
+    borrowCount: number;
+    timesLoaned: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
 
 // Strategy interface
 export interface BookSearchStrategy {

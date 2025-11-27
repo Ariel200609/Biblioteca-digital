@@ -15,7 +15,7 @@ export default function Users() {
   const [form, setForm] = useState<{ name: string; email: string; role: User['role'] }>({ 
     name: '', 
     email: '', 
-    role: 'READER' 
+    role: 'reader' 
   });
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -79,13 +79,15 @@ export default function Users() {
       setForm({ name: user.name, email: user.email, role: user.role });
     } else {
       setEditingId(null);
-      setForm({ name: '', email: '', role: 'READER' });
+      setForm({ name: '', email: '', role: 'reader' });
     }
     setIsModalOpen(true);
   }
 
   // Utilidad para obtener iniciales
-  const getInitials = (name: string) => {
+    const getInitials = (name: string) => {  
+    if (!name) return '??';
+    
     return name
       .split(' ')
       .map(n => n[0])

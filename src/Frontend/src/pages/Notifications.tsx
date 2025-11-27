@@ -8,7 +8,7 @@ type NotificationItem = {
   type: string;
   message: string;
   read: boolean;
-  createdAt?: string; // Asumiendo que el backend envía esto
+  createdAt?: string;
   timestamp?: string;
 };
 
@@ -21,12 +21,9 @@ export default function Notifications() {
     if (!userId) return;
     setLoading(true);
     try {
-      // Se puede pasar ?unreadOnly=false para ver todo
       const data = await apiGet<NotificationItem[]>(`/notifications/user/${userId}`);
-      // Ordenamos por fecha (más recientes primero)
       setItems(data.reverse());
     } catch (error) {
-      console.error("Error cargando notificaciones");
     } finally {
       setLoading(false);
     }
@@ -35,7 +32,7 @@ export default function Notifications() {
   // Cargar al presionar Enter o perder foco
   useEffect(() => {
     load();
-  }, [userId]); // Se recarga si cambia el ID (simple para demo)
+  }, [userId]);
 
   async function markAll() {
     if (!userId) return;
@@ -46,11 +43,9 @@ export default function Notifications() {
   async function markOne(notificationId: string) {
     if (!userId) return;
     await apiPost(`/notifications/user/${userId}/${notificationId}/read`);
-    // Actualización optimista en UI
     setItems(prev => prev.map(n => n.id === notificationId ? { ...n, read: true } : n));
   }
 
-  // Helper para iconos
   const getIcon = (type: string) => {
     switch (type) {
       case 'LOAN_OVERDUE': return '⚠️';

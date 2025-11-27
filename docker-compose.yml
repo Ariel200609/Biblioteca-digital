@@ -1,0 +1,79 @@
+services:
+  # Servicio de MySQL
+  db:
+    image: mysql:8.0
+    container_name: biblioteca_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-biblioteca_digital}
+      MYSQL_USER: ${MYSQL_USER:-biblioteca}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-biblioteca123}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./src/Database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - biblioteca_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      interval: 10s
+
+  # Servicio del Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: biblioteca_backend
+    restart: always
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT:-3000}
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: ${MYSQL_USER:-biblioteca}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-biblioteca123}
+      DB_DATABASE: ${MYSQL_DATABASE:-biblioteca_digital}
+    ports:
+      - "${PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src
+      - /app/node_modules
+    networks:
+      - biblioteca_network
+    command: npm run dev:backend
+
+  # Servicio del Frontend
+  frontend:
+    build:
+      context: ./src/Frontend
+      dockerfile: Dockerfile
+    container_name: biblioteca_frontend
+    restart: always
+    environment:
+      VITE_API_URL: http://localhost:3000/api
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./src/Frontend/src:/app/src
+      - ./src/Frontend/index.html:/app/index.html
+      - /app/node_modules
+    networks:
+      - biblioteca_network
+    command: npm run dev -- --host 0.0.0.0
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  biblioteca_network:
+    driver: bridge

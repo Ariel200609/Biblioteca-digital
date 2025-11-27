@@ -14,7 +14,10 @@ export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
     headers: { 'Content-Type': 'application/json' },
     body: body ? JSON.stringify(body) : undefined,
   });
-  if (!res.ok) throw new Error(`POST ${path} failed: ${res.status}`);
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(`POST ${path} failed: ${res.status} - ${errorData.error}`);
+  }
   return res.json();
 }
 
@@ -24,7 +27,10 @@ export async function apiPut<T>(path: string, body?: unknown): Promise<T> {
     headers: { 'Content-Type': 'application/json' },
     body: body ? JSON.stringify(body) : undefined,
   });
-  if (!res.ok) throw new Error(`PUT ${path} failed: ${res.status}`);
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(`PUT ${path} failed: ${res.status} - ${errorData.error}`);
+  }
   return res.json();
 }
 
@@ -38,7 +44,7 @@ export type User = {
   id: string;
   name: string;
   email: string;
-  role: 'ADMIN' | 'LIBRARIAN' | 'READER';
+  role: 'admin' | 'librarian' | 'reader';
   isActive?: boolean;
 };
 

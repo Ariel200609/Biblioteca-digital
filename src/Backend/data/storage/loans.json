@@ -1,0 +1,76 @@
+[
+  {
+    "id": "1764115103118",
+    "userId": "1764115103102",
+    "bookId": "1764115103104",
+    "loanDate": "2025-11-25T23:58:23.118Z",
+    "dueDate": "2025-12-04T23:58:23.117Z",
+    "status": "active",
+    "renewalCount": 0
+  },
+  {
+    "id": "1764115103122",
+    "userId": "1764115103102",
+    "bookId": "1764115103106",
+    "loanDate": "2025-11-25T23:58:23.122Z",
+    "dueDate": "2025-12-06T23:58:23.121Z",
+    "status": "active",
+    "renewalCount": 0
+  },
+  {
+    "id": "1764115103125",
+    "userId": "1764115103103",
+    "bookId": "1764115103108",
+    "loanDate": "2025-11-25T23:58:23.125Z",
+    "dueDate": "2025-12-08T23:58:23.124Z",
+    "status": "active",
+    "renewalCount": 0
+  },
+  {
+    "id": "1764115157561",
+    "userId": "1764115157545",
+    "bookId": "1764115157547",
+    "loanDate": "2025-11-25T23:59:17.561Z",
+    "dueDate": "2025-12-04T23:59:17.560Z",
+    "status": "active",
+    "renewalCount": 0
+  },
+  {
+    "id": "1764115157565",
+    "userId": "1764115157545",
+    "bookId": "1764115157550",
+    "loanDate": "2025-11-25T23:59:17.565Z",
+    "dueDate": "2025-12-06T23:59:17.564Z",
+    "status": "active",
+    "renewalCount": 0
+  },
+  {
+    "id": "1764115157568",
+    "userId": "1764115157546",
+    "bookId": "1764115157551",
+    "loanDate": "2025-11-25T23:59:17.568Z",
+    "dueDate": "2025-12-08T23:59:17.567Z",
+    "status": "active",
+    "renewalCount": 0
+  },
+  {
+    "id": "1764208671201",
+    "userId": "2",
+    "bookId": "1",
+    "loanDate": "2025-11-27T01:57:51.201Z",
+    "dueDate": "2025-12-11T01:57:51.201Z",
+    "status": "returned",
+    "renewalCount": 0,
+    "returnDate": "2025-11-27T01:57:56.809Z"
+  },
+  {
+    "id": "1764208682616",
+    "userId": "2",
+    "bookId": "1",
+    "loanDate": "2025-11-27T01:58:02.616Z",
+    "dueDate": "2026-01-08T01:58:02.616Z",
+    "status": "returned",
+    "renewalCount": 2,
+    "returnDate": "2025-11-27T01:58:07.871Z"
+  }
+]

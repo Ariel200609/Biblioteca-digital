@@ -163,13 +163,22 @@ describe('LoanService', () => {
         });
 
         it('should not renew an overdue loan', async () => {
-            // Setup: Create a loan with past due date
+            // Setup: Create a loan with future due date
+            const futureDate = new Date();
+            futureDate.setDate(futureDate.getDate() + 5);
             const loanData: CreateLoanDTO = {
                 userId: '1',
                 bookId: '1',
-                dueDate: new Date('2020-01-01')
+                dueDate: futureDate
             };
             const loan = await loanService.createLoan(loanData);
+
+            // Access the internal loans array and manually make the loan overdue
+            const internalLoans = (loanService as any).loans;
+            const actualLoan = internalLoans.find((l: any) => l.id === loan.id);
+            if (actualLoan) {
+                actualLoan.dueDate = new Date('2020-01-01');
+            }
 
             await expect(loanService.renewLoan(loan.id)).rejects.toThrow('Overdue loans cannot be renewed');
         });
